@@ -16,10 +16,14 @@ better_completer = NestedCompleter.from_nested_dict({
     'exit': None,
 })
 
+connection_status = 'Not in call'
+availability_status = 'available'
 def bottom_toolbar():
-    return HTML('Not in call / <b>Available</b> / (Press ctrl+d to exit)')
+    return HTML(connection_status + '/ <b>' + availability_status + '</b> / (Press ctrl+d to exit)')
 
 def main():
+    global connection_status
+    global availability_status
     session = PromptSession(
         completer=better_completer, bottom_toolbar=bottom_toolbar)
 
@@ -37,10 +41,18 @@ def main():
                     print ("call requires a name of someone to call")
                     continue
                 print("calling " + args[0])
+                connection_status = 'In 1-1 call'                
                 print("TODO")
             elif command == "hangup":
                 print("hanging up")
                 print("TODO")
+                connection_status = 'Not in call'
+            elif command == 'set':
+                if not args:
+                    print ("set requires additional arguments")
+                    continue
+                availability_status =  args[0]
+                print("You are now " + args[0])
             else:
                 print("Unsupported command: " + command)
 
