@@ -17,7 +17,7 @@ better_completer = NestedCompleter.from_nested_dict({
 })
 
 def bottom_toolbar():
-    return HTML('No session / <b>Available</b> / (Press ctrl+d to exit)')
+    return HTML('Not in call / <b>Available</b> / (Press ctrl+d to exit)')
 
 def main():
     session = PromptSession(
