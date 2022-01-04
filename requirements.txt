@@ -1,1 +1,6 @@
-prompt-toolkit==3.0.20
+attrs==21.4.0
+click==8.0.3
+colorama==0.4.4
+itsdangerous==2.0.1
+prompt-toolkit==3.0.24
+wcwidth==0.2.5

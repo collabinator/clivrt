@@ -3,22 +3,30 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.completion import NestedCompleter
 from prompt_toolkit.formatted_text import HTML
+from commands import command 
 
 better_completer = NestedCompleter.from_nested_dict({
     'call': None, 'hangup': None,                                   # 1-1 call
     'join': {}, 'leave': {},                                        # join leave rooms
     'login': None, 'logout': None, 'lookup': None, 'whoami': None,  # directory and addressbook
-    'set': {
+    'set': {                                                        # set various states (like availability)
         'donotdisturb': None,
         'away': None,
         'available': None
     },
-    'exit': None,
+    # 'debug': {                                                      # if the signaling server is offline we can manually connect peers
+    #     'gen-video-offer': None,
+    #     'gen-video-answer': {'from-video-offer': None},
+    #     'use-video-answer': None
+    # },
+    'exit': None, 'quit': None                                      # exit
 })
 
 connection_status = 'Not in call'
 availability_status = 'available'
 def bottom_toolbar():
+    # TODO future file data transfer progress
+    # TODO video sent/received packets + bytes + frames + bitrate + etc...
     return HTML(connection_status + '/ <b>' + availability_status + '</b> / (Press ctrl+d to exit)')
 
 def main():
@@ -53,6 +61,8 @@ def main():
                     continue
                 availability_status =  args[0]
                 print("You are now " + args[0])
+            elif command == 'exit' or command == 'quit':
+                break
             else:
                 print("Unsupported command: " + command)
 
