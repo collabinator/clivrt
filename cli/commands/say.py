@@ -22,7 +22,7 @@ Examples:
         message = ' '.join(args)
         logging.debug('saying ' + message)
         try:
-            self.session.ws_client.send_message(message)
+            self.session.ws_client.broadcast_message(message, self.session)
         except Exception as e:
             logging.error('say failed')
             logging.error(e)

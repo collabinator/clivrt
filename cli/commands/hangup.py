@@ -21,7 +21,7 @@ Examples:
 
         try:
             # TODO disconnect WebRTC session
-            self.session.ws_client.endRTC()
+            self.session.ws_client.end_rtc()
             self.session.connection_status.status = ConnectionStatusEnum.NOTINCALL
             self.session.connection_status.group_name = ''
             self.session.connection_status.talking_to = ''

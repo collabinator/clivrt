@@ -6,13 +6,24 @@ class Logout(Command):
     help_text = """
 Summary: Logout from a server with our address book. Usually, you'll want to login again immediately.
 Usage: logout
+Options:
+    -f, attempt to force logout
 Examples:
     logout
 """
 
     def do_command(self, *args):
+        forced = False
+        if args:
+            for arg in args:  # common args processing done here (versus in every command)
+                if arg == '-f':
+                    forced = True
+                    break
         try:
-            self.session.ws_client.disconnect()
+            if not self.session.ws_client.is_connected() and not forced:
+                print('not logged in, use -f to attempt forcing a disconnect.')
+                return
+                self.session.ws_client.disconnect()
         except Exception as e:
             logging.error('logout failed')
             logging.error(e)

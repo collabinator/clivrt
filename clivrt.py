@@ -12,6 +12,7 @@ from cli.commands.say import Say
 from cli.datamodel.session import Session
 from cli.commands.login import Login
 from cli.commands.logout import Logout
+from cli.commands.quit import Quit
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -30,7 +31,7 @@ better_completer = NestedCompleter.from_nested_dict({
     #     'gen-video-answer': {'from-video-offer': None},
     #     'use-video-answer': None
     # },
-    'exit': None, 'quit': None                                      # exit
+    'exit': None, 'quit': None                                        # exit
 })
 
 session = Session()
@@ -47,6 +48,7 @@ def main():
     dummy = Say(commands, session)
     dummy = Login(commands, session)
     dummy = Logout(commands, session)
+    dummy = Quit(commands, session)
     # TODO load all the commands availble from the commands folder vs manually like above (also loop import classes)
 
     prompt_session = PromptSession(
