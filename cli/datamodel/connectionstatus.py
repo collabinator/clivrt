@@ -1,4 +1,3 @@
-from typing import ClassVar
 from attrs import define, asdict, frozen
 from enum import Enum
 
