@@ -6,13 +6,27 @@ import threading
 import json
 from datetime import datetime
 from time import sleep
+from prodict import Prodict
+
+from cli.datamodel.connectionstatus import ConnectionStatusEnum
+
+import argparse
+import asyncio
+import logging
+import time
+
+from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription, sdp
+from aiortc.contrib.signaling import BYE, add_signaling_arguments, create_signaling
 
 #websocket.enableTrace(True)
-websocket.setdefaulttimeout(30) # quick fix here, TODO move this into configurable options
+websocket.setdefaulttimeout(300) # quick fix here, TODO move this into configurable options
 @define
 class WebSockClient:
+    my_username: str = "test"
     wsapp: websocket.WebSocketApp = None
     thread: threading.Thread = None
+
+    pc: RTCPeerConnection = RTCPeerConnection()
 
     def is_connected(self):
         if self.wsapp is None: return False
@@ -48,9 +62,26 @@ class WebSockClient:
 
     def on_message(self, wsapp, message):
         logging.debug('got a message')
-        logging.debug(message)
+        msg_obj = Prodict.from_dict(json.loads(message))
+        if msg_obj['type'] == 'video-offer':
+            asyncio.run(self.pc.setRemoteDescription(msg_obj['sdp']))
+            asyncio.run(self.pc.setLocalDescription(asyncio.run(self.pc.createAnswer())))
+            msg_data = {
+                'sdp': self.pc.localDescription.sdp,
+                'target': msg_obj['name'],
+                'type': 'video-answer',
+                'name': self.my_username,
+                'date': str(datetime.now())
+            }
+            self.wsapp.send(json.dumps(msg_data))
+        elif msg_obj['type'] == 'new-ice-candidate':
+            asyncio.run(self.pc.addIceCandidate(msg_obj['candidate']))
+        else:
+            logging.debug(message)
+
 
     def connect_to_signaling_server(self, uri: str, my_username: str):
+        self.my_username = my_username
         if self.wsapp is not None:
             logging.warning('trying to connect to server but already connected to ' + self.wsapp.url)
             return # is this the correct behavior?
@@ -65,6 +96,8 @@ class WebSockClient:
             thread.daemon = True
             thread.start()
             logging.debug('main thread id: ' + str(threading.main_thread().ident) + '/started new thread id:' + str(thread.ident))
+            self.session.connection_status.status = ConnectionStatusEnum.INGROUPCALL
+            self.pc = RTCPeerConnection()
         except Exception as e:
             logging.error('exepction trying to open websocket to signaling server')
             logging.error(e)
