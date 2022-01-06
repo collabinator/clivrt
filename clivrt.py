@@ -5,7 +5,7 @@ from attrs import asdict, define, make_class, Factory
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.completion import NestedCompleter
-from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit import print_formatted_text, HTML
 from cli.commands.call import Call
 from cli.commands.hangup import Hangup
 from cli.commands.say import Say
@@ -15,6 +15,9 @@ from cli.commands.logout import Logout
 from cli.commands.quit import Quit
 
 logging.basicConfig(level=logging.DEBUG)
+# TODO future format the text nicer using this print override (will need to update every print())
+# def print(self, content):
+#     print_formatted_text(HTML(content), style=self.style)
 
 better_completer = NestedCompleter.from_nested_dict({
     'call': None, 'hangup': None,                                   # 1-1 call

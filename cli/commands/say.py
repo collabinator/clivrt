@@ -13,9 +13,15 @@ Examples:
 """
 
     def do_command(self, *args):
-        if self.session.connection_status.status != ConnectionStatusEnum.INCALL and self.session.connection_status.status != ConnectionStatusEnum.INGROUPCALL:
-            print("say requires an active connection")
+        try:
+            if not self.session.ws_client.is_connected():
+                print("say requires an active connection - please login first")
+                return
+        except Exception as e:
+            logging.error('say failed')
+            logging.error(e)
             return
+
         if not args:
             print('say requires a message')
             return
