@@ -3,9 +3,9 @@ import logging
 from attr import field
 from attrs import asdict, define, make_class, Factory
 from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit.completion import NestedCompleter
-from prompt_toolkit import print_formatted_text, HTML
+import prompt_toolkit
+from prompt_toolkit.completion import WordCompleter, NestedCompleter
+from prompt_toolkit.shortcuts.prompt import prompt
 from cli.commands.call import Call
 from cli.commands.hangup import Hangup
 from cli.commands.say import Say
@@ -13,11 +13,10 @@ from cli.datamodel.session import Session
 from cli.commands.login import Login
 from cli.commands.logout import Logout
 from cli.commands.quit import Quit
-
+from cli.commands.lookup import Lookup
+from cli.network.websockclient import WebSockClient
+from cli import printf
 logging.basicConfig(level=logging.DEBUG)
-# TODO future format the text nicer using this print override (will need to update every print())
-# def print(self, content):
-#     print_formatted_text(HTML(content), style=self.style)
 
 better_completer = NestedCompleter.from_nested_dict({
     'call': None, 'hangup': None,                                   # 1-1 call
@@ -38,20 +37,23 @@ better_completer = NestedCompleter.from_nested_dict({
 })
 
 session = Session()
+ws_client = WebSockClient(session = session)
+
 availability_status = 'available'
 def bottom_toolbar():
     # TODO future file data transfer progress
     # TODO video sent/received packets + bytes + frames + bitrate + etc...
-    return HTML(session.connection_status.getDescription() + '/ <b>' + availability_status + '</b> / (Press ctrl+d to exit)')
+    return prompt_toolkit.HTML(session.connection_status.getDescription() + '/ <b>' + availability_status + '</b> / (Press ctrl+d to exit)')
 
 def main():
     commands = {}
-    dummy = Call(commands, session)
-    dummy = Hangup(commands, session)
-    dummy = Say(commands, session)
-    dummy = Login(commands, session)
-    dummy = Logout(commands, session)
-    dummy = Quit(commands, session)
+    dummy = Call(commands, session, ws_client)
+    dummy = Hangup(commands, session, ws_client)
+    dummy = Say(commands, session, ws_client)
+    dummy = Login(commands, session, ws_client)
+    dummy = Logout(commands, session, ws_client)
+    dummy = Quit(commands, session, ws_client)
+    dummy = Lookup(commands, session, ws_client)
     # TODO load all the commands availble from the commands folder vs manually like above (also loop import classes)
 
     prompt_session = PromptSession(
@@ -68,7 +70,7 @@ def main():
 
             command = commands.get(input_cmd_name) or None
             if not command:
-                print("Unsupported command " + input_cmd_name)
+                printf(f'<error>Unsupported command</error> {input_cmd_name}')
                 continue
 
             show_help = False

@@ -13,7 +13,14 @@ Examples:
 """
 
     def do_command(self, *args):
-        logging.debug('call requested, connection status=' + self.session.connection_status.getDescription())
+        try:
+            if not self.ws_client.is_connected():
+                print('call requires an active connection to a signaling server - please login first.')
+                return
+        except Exception as e:
+            logging.error('call failed')
+            logging.error(e)
+            return
         if not args:
             print('call requires a name for someone to call')
             return
@@ -21,12 +28,8 @@ Examples:
             print("hangup before calling someone else")
             return
 
-        if not self.session.ws_client.is_connected():
-            print('call requires an active connection to a signaling server - please login first.')
-            return
-
         try:
-            self.session.ws_client.invite_user_to_rtc(args[0])
+            self.ws_client.invite_user_to_rtc(args[0])
             self.session.connection_status.status = ConnectionStatusEnum.INCALL
             self.session.connection_status.talking_to = args[0]
             # TODO connect WebRTC connection

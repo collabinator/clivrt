@@ -6,11 +6,14 @@ import threading
 import json
 from datetime import datetime
 from time import sleep
+from cli.datamodel.session import Session
+from .websockmessaging import WebSockMessaging
 
 #websocket.enableTrace(True)
 websocket.setdefaulttimeout(30) # quick fix here, TODO move this into configurable options
 @define
 class WebSockClient:
+    session: Session = None
     wsapp: websocket.WebSocketApp = None
     thread: threading.Thread = None
 
@@ -38,6 +41,7 @@ class WebSockClient:
         if close_status_code or close_msg:
             logging.debug('close status code: ' + str(close_status_code))
             logging.debug('close message: ' + str(close_msg))
+        self.disconnect() # call close and wsapp delete
 
     def on_open(self, wsapp):
         logging.debug('socket opened')
@@ -47,13 +51,14 @@ class WebSockClient:
         logging.error(error)
 
     def on_message(self, wsapp, message):
-        logging.debug('got a message')
-        logging.debug(message)
+        # logging.debug('got a message')
+        # logging.debug(message)
+        WebSockMessaging.process_incoming(message, self.session)
 
     def connect_to_signaling_server(self, uri: str, my_username: str):
         if self.wsapp is not None:
             logging.warning('trying to connect to server but already connected to ' + self.wsapp.url)
-            return # is this the correct behavior?
+            #return # is this the correct behavior?
         try:
             def ws_runloop():
                 logging.debug('starting websocket thread run loop')

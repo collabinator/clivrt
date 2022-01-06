@@ -18,7 +18,7 @@ Examples:
         # TODO arg handling to get user and uri
 
         try:
-            self.session.ws_client.connect_to_signaling_server(self.session.singaling_host_path, self.session.my_name)
+            self.ws_client.connect_to_signaling_server(self.session.singaling_host_path, self.session.my_name)
         except Exception as e:
             logging.error('login failed')
             logging.error(e)

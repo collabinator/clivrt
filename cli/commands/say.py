@@ -14,7 +14,7 @@ Examples:
 
     def do_command(self, *args):
         try:
-            if not self.session.ws_client.is_connected():
+            if not self.ws_client.is_connected():
                 print("say requires an active connection - please login first")
                 return
         except Exception as e:
@@ -28,7 +28,7 @@ Examples:
         message = ' '.join(args)
         logging.debug('saying ' + message)
         try:
-            self.session.ws_client.broadcast_message(message, self.session)
+            self.ws_client.broadcast_message(message, self.session)
         except Exception as e:
             logging.error('say failed')
             logging.error(e)

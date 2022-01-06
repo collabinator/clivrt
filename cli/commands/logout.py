@@ -20,10 +20,10 @@ Examples:
                     forced = True
                     break
         try:
-            if not self.session.ws_client.is_connected() and not forced:
+            if not self.ws_client.is_connected() and not forced:
                 print('not logged in, use -f to attempt forcing a disconnect.')
                 return
-            self.session.ws_client.disconnect()
+            self.ws_client.disconnect()
         except Exception as e:
             logging.error('logout failed')
             logging.error(e)
