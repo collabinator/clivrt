@@ -43,9 +43,9 @@ async def run(pc, player, recorder, signaling, role):
         await pc.setLocalDescription(await pc.createOffer())
         msg_data = {
             'sdp': json.loads(object_to_string(pc.localDescription)),
-            'target': 'jason',
+            'target': 'jason', # TODO: figure out a way to make this dynamic
             'type': 'video-ofer',
-            'name': 'cli',
+            'name': 'cli', # TODO: grab this from args
             'date': str(datetime.now())
         }
         await signaling.send(json.dumps(msg_data))
@@ -67,7 +67,7 @@ async def run(pc, player, recorder, signaling, role):
                     'sdp': json.loads(object_to_string(pc.localDescription)),
                     'target': msg_obj['name'],
                     'type': 'video-answer',
-                    'name': 'cli',
+                    'name': 'cli', # TODO: grab this from args
                     'date': str(datetime.now())
                 }
                 await signaling.send(json.dumps(msg_data))
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # create signaling and peer connection
     signaling = quarkus.QuarkusSocketSignaling(args.signaling_protocol, args.signaling_host, args.signaling_port, args.username)
     pc = RTCPeerConnection()
-    # TODO: Add STUN Servers 
+    # TODO: Add STUN Servers to pc
 
     # create media source
     # TODO: Remove if necessary. Maybe get webcam here?
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
     # create media sink
     if args.record_to:
-        recorder = MediaRecorder(args.record_to)
+        recorder = MediaRecorder(args.record_to) # TODO: Maybe discard this?
     else:
         recorder = MediaBlackhole()
 
