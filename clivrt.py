@@ -99,6 +99,7 @@ if __name__ == "__main__":
     # create signaling and peer connection
     signaling = quarkus.QuarkusSocketSignaling(args.signaling_protocol, args.signaling_host, args.signaling_port, args.username)
     pc = RTCPeerConnection()
+    # TODO: Add STUN Servers 
 
     # create media source
     # TODO: Remove if necessary. Maybe get webcam here?

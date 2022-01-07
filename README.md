@@ -1,7 +1,13 @@
 # Experimental app clivrt
 CLI app to display video real-time. 
 ## How to use this
-TBD
+```bash
+python3 -m pip install aiohttp aiortc opencv-python git+https://github.com/collabinator/video-to-ascii.git
+python3 clivrt.py answer
+
+# Then call the cli user from the browser
+# Eventually we'll want to do some offer workflows too (python3 clivrt.py offer)
+```
 
 ## CLI reference
 TBD
