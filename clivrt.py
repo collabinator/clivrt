@@ -1,96 +1,134 @@
-import traceback
+import argparse
+import asyncio
+import json
 import logging
-from attr import field
-from attrs import asdict, define, make_class, Factory
-from prompt_toolkit import PromptSession
-import prompt_toolkit
-from prompt_toolkit.completion import WordCompleter, NestedCompleter
-from prompt_toolkit.shortcuts.prompt import prompt
-from cli.commands.call import Call
-from cli.commands.hangup import Hangup
-from cli.commands.say import Say
-from cli.datamodel.session import Session
-from cli.commands.login import Login
-from cli.commands.logout import Logout
-from cli.commands.quit import Quit
-from cli.commands.lookup import Lookup
-from cli.network.websockclient import WebSockClient
-from cli import printf
-logging.basicConfig(level=logging.DEBUG)
+from datetime import datetime
+from aiortc.sdp import candidate_from_sdp
 
-better_completer = NestedCompleter.from_nested_dict({
-    'call': None, 'hangup': None,                                   # 1-1 call
-    'join': {}, 'leave': {},                                        # join leave rooms
-    'login': None, 'logout': None, 'lookup': None, 'whoami': None,  # directory and addressbook
-    'set': {                                                        # set various states (like availability)
-        'donotdisturb': None,
-        'away': None,
-        'available': None
-    },
-    'say': None,                                                      # text chat can be done via signaling server
-    # 'carrierpigeon': {                                              # if the signaling server is offline we can manually connect peers
-    #     'gen-video-offer': None,
-    #     'gen-video-answer': {'from-video-offer': None},
-    #     'use-video-answer': None
-    # },
-    'exit': None, 'quit': None                                        # exit
-})
+from signaling import quarkus
+from media import ascii
 
-session = Session()
-ws_client = WebSockClient(session = session)
+from prodict import Prodict
 
-availability_status = 'available'
-def bottom_toolbar():
-    # TODO future file data transfer progress
-    # TODO video sent/received packets + bytes + frames + bitrate + etc...
-    return prompt_toolkit.HTML(session.connection_status.getDescription() + '/ <b>' + availability_status + '</b> / (Press ctrl+d to exit)')
+from aiortc import (
+    RTCPeerConnection,
+)
+from aiortc.contrib.media import MediaBlackhole, MediaPlayer, MediaRecorder, MediaRelay
+from aiortc.contrib.signaling import BYE, object_to_string
 
-def main():
-    commands = {}
-    dummy = Call(commands, session, ws_client)
-    dummy = Hangup(commands, session, ws_client)
-    dummy = Say(commands, session, ws_client)
-    dummy = Login(commands, session, ws_client)
-    dummy = Logout(commands, session, ws_client)
-    dummy = Quit(commands, session, ws_client)
-    dummy = Lookup(commands, session, ws_client)
-    # TODO load all the commands availble from the commands folder vs manually like above (also loop import classes)
+relay = MediaRelay()
 
-    prompt_session = PromptSession(
-        completer=better_completer, bottom_toolbar=bottom_toolbar)
+async def run(pc, player, recorder, signaling, role):
+    def add_tracks():
+        if player and player.audio:
+            pc.addTrack(player.audio)
 
+        # TODO: Add my webcam stream here
+
+    @pc.on("track")
+    def on_track(track):
+        print("Receiving %s" % track.kind)
+        if track.kind == 'video':
+            recorder.addTrack(ascii.VideoTransformTrack(
+                relay.subscribe(track)
+            ))
+        # TODO: play audio
+
+    # connect signaling
+    await signaling._connect()
+
+    if role == "offer":
+        # send offer
+        add_tracks()
+        await pc.setLocalDescription(await pc.createOffer())
+        msg_data = {
+            'sdp': json.loads(object_to_string(pc.localDescription)),
+            'target': 'jason',
+            'type': 'video-ofer',
+            'name': 'cli',
+            'date': str(datetime.now())
+        }
+        await signaling.send(json.dumps(msg_data))
+
+    # consume signaling
     while True:
-        try:
-            text = prompt_session.prompt('> ')
-            if not text:
-                continue
-            else:
-                input_cmd_split = text.split()
-            input_cmd_name, input_cmd_args = input_cmd_split[0], input_cmd_split[1:]
+        message = await signaling.receive()
+        msg_obj = Prodict.from_dict(json.loads(message))
 
-            command = commands.get(input_cmd_name) or None
-            if not command:
-                printf(f'<error>Unsupported command</error> {input_cmd_name}')
-                continue
+        if msg_obj['type'] == 'video-offer' or msg_obj['type'] == 'video-answer':
+            await pc.setRemoteDescription(msg_obj['sdp'])
+            await recorder.start()
 
-            show_help = False
-            for arg in input_cmd_args:  # common args processing done here (versus in every command)
-                if arg == '-h':
-                    show_help = True
-                    break
+            if msg_obj['type'] == 'video-offer':
+                # send answer
+                add_tracks()
+                await pc.setLocalDescription(await pc.createAnswer())
+                msg_data = {
+                    'sdp': json.loads(object_to_string(pc.localDescription)),
+                    'target': msg_obj['name'],
+                    'type': 'video-answer',
+                    'name': 'cli',
+                    'date': str(datetime.now())
+                }
+                await signaling.send(json.dumps(msg_data))
+        elif msg_obj['type'] == 'new-ice-candidate':
+            candidate = candidate_from_sdp(msg_obj["candidate"]["candidate"].split(":", 1)[1])
+            candidate.sdpMid = msg_obj["candidate"]["sdpMid"]
+            candidate.sdpMLineIndex = msg_obj["candidate"]["sdpMLineIndex"]
+            await pc.addIceCandidate(candidate)
+        else:
+            print(message)
 
-            if show_help:
-                command.show_help()
-            else:
-                command.do_command(*input_cmd_args)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Video stream from the command line")
+    parser.add_argument("role", choices=["offer", "answer"])
+    parser.add_argument("--play-from", help="Read the media from a file and sent it."),
+    parser.add_argument("--record-to", help="Write received media to a file."),
+    parser.add_argument("--verbose", "-v", action="count")
+    args = parser.parse_args()
 
-        except KeyboardInterrupt:
-            continue
-        except EOFError:
-            break
-        except Exception as e:
-            traceback.print_exc()
-    print('GoodBye!')
+    # TODO: Parameterize these vv
+    args.signaling_protocol = 'ws'
+    args.signaling_host = 'localhost'
+    args.signaling_port = '8080'
+    args.username = 'cli'
 
-if __name__ == '__main__':
-    main()
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+
+    # create signaling and peer connection
+    signaling = quarkus.QuarkusSocketSignaling(args.signaling_protocol, args.signaling_host, args.signaling_port, args.username)
+    pc = RTCPeerConnection()
+
+    # create media source
+    # TODO: Remove if necessary. Maybe get webcam here?
+    if args.play_from:
+        player = MediaPlayer(args.play_from)
+    else:
+        player = None
+
+    # create media sink
+    if args.record_to:
+        recorder = MediaRecorder(args.record_to)
+    else:
+        recorder = MediaBlackhole()
+
+    # run event loop
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(
+            run(
+                pc=pc,
+                player=player,
+                recorder=recorder,
+                signaling=signaling,
+                role=args.role,
+            )
+        )
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # cleanup
+        loop.run_until_complete(recorder.stop())
+        loop.run_until_complete(signaling.close())
+        loop.run_until_complete(pc.close())
