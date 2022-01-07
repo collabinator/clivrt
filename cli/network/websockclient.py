@@ -1,32 +1,70 @@
 import logging
+from aiortc.mediastreams import MediaStreamTrack
 from attrs import define
 import websocket
 import ssl
 import threading
 import json
+import cv2
+import os
+import sys
 from datetime import datetime
 from time import sleep
 from prodict import Prodict
 
 from cli.datamodel.connectionstatus import ConnectionStatusEnum
+from cli.network.video_ascii import VideoTransformTrack
+from cli.network.flag import FlagVideoStreamTrack
 
 import argparse
 import asyncio
 import logging
 import time
 
-from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription, sdp
-from aiortc.contrib.signaling import BYE, add_signaling_arguments, create_signaling
+from video_to_ascii import video_engine
 
+from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription, sdp, VideoStreamTrack
+from aiortc.contrib.signaling import BYE, add_signaling_arguments, create_signaling, object_from_string, object_to_string, candidate_from_sdp
+from aiortc.contrib.media import MediaBlackhole, MediaPlayer, MediaRecorder, MediaRelay
+
+ROOT = os.path.dirname(__file__)
 #websocket.enableTrace(True)
 websocket.setdefaulttimeout(300) # quick fix here, TODO move this into configurable options
+pc: RTCPeerConnection = RTCPeerConnection()
+relay = MediaRelay()
+recorder = MediaBlackhole()
+
+class VideoTransformTrack(MediaStreamTrack):
+    """
+    A video stream track that transforms frames from an another track.
+    """
+
+    kind = "video"
+
+    def __init__(self, track):
+        super().__init__()
+        self.track = track
+
+    async def recv(self):
+        frame = await self.track.recv()
+
+        ve = video_engine.VideoEngine("just-ascii")
+        ve.render_strategy.render_frame(frame.to_ndarray(format="bgr24"))
+        
+        return frame
+
 @define
 class WebSockClient:
     my_username: str = "test"
     wsapp: websocket.WebSocketApp = None
     thread: threading.Thread = None
 
-    pc: RTCPeerConnection = RTCPeerConnection()
+    @pc.on("track")
+    async def on_track(track):
+        if track.kind == "video":
+            await recorder.start()
+            recorder.addTrack(VideoTransformTrack(relay.subscribe(track)))
+            
 
     def is_connected(self):
         if self.wsapp is None: return False
@@ -64,10 +102,13 @@ class WebSockClient:
         logging.debug('got a message')
         msg_obj = Prodict.from_dict(json.loads(message))
         if msg_obj['type'] == 'video-offer':
-            asyncio.run(self.pc.setRemoteDescription(msg_obj['sdp']))
-            asyncio.run(self.pc.setLocalDescription(asyncio.run(self.pc.createAnswer())))
+            asyncio.run(pc.setRemoteDescription(msg_obj['sdp']))
+
+            pc.addTrack(FlagVideoStreamTrack())
+
+            asyncio.run(pc.setLocalDescription(asyncio.run(pc.createAnswer())))
             msg_data = {
-                'sdp': self.pc.localDescription.sdp,
+                'sdp': json.loads(object_to_string(pc.localDescription)),
                 'target': msg_obj['name'],
                 'type': 'video-answer',
                 'name': self.my_username,
@@ -75,7 +116,10 @@ class WebSockClient:
             }
             self.wsapp.send(json.dumps(msg_data))
         elif msg_obj['type'] == 'new-ice-candidate':
-            asyncio.run(self.pc.addIceCandidate(msg_obj['candidate']))
+            candidate = candidate_from_sdp(msg_obj["candidate"]["candidate"].split(":", 1)[1])
+            candidate.sdpMid = msg_obj["candidate"]["sdpMid"]
+            candidate.sdpMLineIndex = msg_obj["candidate"]["sdpMLineIndex"]
+            asyncio.run(pc.addIceCandidate(candidate))
         else:
             logging.debug(message)
 
@@ -97,7 +141,6 @@ class WebSockClient:
             thread.start()
             logging.debug('main thread id: ' + str(threading.main_thread().ident) + '/started new thread id:' + str(thread.ident))
             self.session.connection_status.status = ConnectionStatusEnum.INGROUPCALL
-            self.pc = RTCPeerConnection()
         except Exception as e:
             logging.error('exepction trying to open websocket to signaling server')
             logging.error(e)
