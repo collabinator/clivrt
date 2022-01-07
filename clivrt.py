@@ -5,8 +5,8 @@ import logging
 from datetime import datetime
 from aiortc.sdp import candidate_from_sdp
 
-from signaling import quarkus
 from media import ascii
+import websockets
 
 from prodict import Prodict
 
@@ -18,7 +18,7 @@ from aiortc.contrib.signaling import BYE, object_to_string
 
 relay = MediaRelay()
 
-async def run(pc, player, recorder, signaling, role):
+async def run(pc, player, recorder, signaling_url, role):
     def add_tracks():
         if player and player.audio:
             pc.addTrack(player.audio)
@@ -34,8 +34,8 @@ async def run(pc, player, recorder, signaling, role):
             ))
         # TODO: play audio
 
-    # connect signaling
-    await signaling._connect()
+    # connect to signaling server
+    server = await websockets.connect(uri=signaling_url)
 
     if role == "offer":
         # send offer
@@ -48,11 +48,11 @@ async def run(pc, player, recorder, signaling, role):
             'name': 'cli', # TODO: grab this from args
             'date': str(datetime.now())
         }
-        await signaling.send(json.dumps(msg_data))
+        await server.send(json.dumps(msg_data))
 
     # consume signaling
     while True:
-        message = await signaling.receive()
+        message = await server.recv()
         msg_obj = Prodict.from_dict(json.loads(message))
 
         if msg_obj['type'] == 'video-offer' or msg_obj['type'] == 'video-answer':
@@ -70,7 +70,7 @@ async def run(pc, player, recorder, signaling, role):
                     'name': 'cli', # TODO: grab this from args
                     'date': str(datetime.now())
                 }
-                await signaling.send(json.dumps(msg_data))
+                await server.send(json.dumps(msg_data))
         elif msg_obj['type'] == 'new-ice-candidate':
             candidate = candidate_from_sdp(msg_obj["candidate"]["candidate"].split(":", 1)[1])
             candidate.sdpMid = msg_obj["candidate"]["sdpMid"]
@@ -88,16 +88,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # TODO: Parameterize these vv
-    args.signaling_protocol = 'ws'
-    args.signaling_host = 'localhost'
-    args.signaling_port = '8080'
+    args.signaling_protocol = 'wss'
+    args.signaling_host = 'clivrt-signaling-service-clivrt.apps.cluster-pt8dg.pt8dg.sandbox106.opentlc.com'
+    args.signaling_port = '443'
     args.username = 'cli'
 
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
 
-    # create signaling and peer connection
-    signaling = quarkus.QuarkusSocketSignaling(args.signaling_protocol, args.signaling_host, args.signaling_port, args.username)
+    # create signaling_url and peer connection
+    signaling_url = "{}://{}:{}/chat/{}".format(args.signaling_protocol, args.signaling_host, args.signaling_port, args.username)
+
     pc = RTCPeerConnection()
     # TODO: Add STUN Servers to pc
 
@@ -122,7 +123,7 @@ if __name__ == "__main__":
                 pc=pc,
                 player=player,
                 recorder=recorder,
-                signaling=signaling,
+                signaling_url=signaling_url,
                 role=args.role,
             )
         )
@@ -131,5 +132,5 @@ if __name__ == "__main__":
     finally:
         # cleanup
         loop.run_until_complete(recorder.stop())
-        loop.run_until_complete(signaling.close())
+        # TODO: Close socket properly
         loop.run_until_complete(pc.close())
