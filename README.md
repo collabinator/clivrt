@@ -2,7 +2,7 @@
 CLI app to display video real-time. 
 ## How to use this
 ```bash
-python3 -m pip install aiohttp aiortc opencv-python git+https://github.com/collabinator/video-to-ascii.git
+python3 -m pip install aiortc opencv-python git+https://github.com/collabinator/video-to-ascii.git
 python3 clivrt.py answer
 
 # Then call the cli user from the browser
