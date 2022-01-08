@@ -1,5 +1,4 @@
 import logging
-from re import M
 from attrs import define
 import json
 from datetime import datetime

@@ -1,19 +1,17 @@
 import traceback
 import logging
-from attr import field
-from attrs import asdict, define, make_class, Factory
-from prompt_toolkit import PromptSession
 import prompt_toolkit
+from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter, NestedCompleter
 from prompt_toolkit.shortcuts.prompt import prompt
 from cli.commands.call import Call
 from cli.commands.hangup import Hangup
 from cli.commands.say import Say
-from cli.datamodel.session import Session
 from cli.commands.login import Login
 from cli.commands.logout import Logout
 from cli.commands.quit import Quit
 from cli.commands.lookup import Lookup
+from cli.datamodel.session import Session
 from cli.network.websockclient import WebSockClient
 from cli import printf
 logging.basicConfig(level=logging.DEBUG)

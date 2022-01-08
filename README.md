@@ -1,5 +1,5 @@
-# Experimental app clivrt
-CLI app to display video real-time. 
+# clivrt
+CLI app to do video calls but from the terminal. Just fun little project that let's you chat with friends in a retro kidna way - while staying in your CLI. 
 ## How to use this
 TBD
 

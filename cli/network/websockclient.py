@@ -10,7 +10,7 @@ from cli.datamodel.session import Session
 from .websockmessaging import WebSockMessaging
 
 #websocket.enableTrace(True)
-websocket.setdefaulttimeout(30) # quick fix here, TODO move this into configurable options
+websocket.setdefaulttimeout(300) # quick fix here, TODO move this into configurable options
 @define
 class WebSockClient:
     session: Session = None
@@ -90,7 +90,7 @@ class WebSockClient:
             try:
                 self.wsapp.close()
                 self.wsapp = None
-                sleep(3)
+                sleep(1)
                 logging.debug('WebSocketApp connection closed')
             except Exception as e:
                 logging.error('logout failed')
