@@ -1,8 +1,24 @@
 # Experimental app clivrt
 CLI app to display video real-time. 
-## How to use this
+
+## Run locally
+**Using a prebuilt container image**
 ```bash
-python3 -m pip install aiortc opencv-python git+https://github.com/collabinator/video-to-ascii.git
+# Run container
+docker run --rm -it --entrypoint bash quay.io/akrohg/clivrt
+```
+**Or installing dependencies to your host (with python 3.9)**
+```bash
+pip3 install aiortc opencv-python prodict websockets git+https://github.com/collabinator/video-to-ascii.git \
+    && yum install -y mesa-libGL
+```
+
+**Then clone and run the app**
+```bash
+# Clone this repository
+git clone https://github.com/collabinator/clivrt.git
+
+# Run the CLI
 python3 clivrt.py answer
 
 # Then call the cli user from the browser
