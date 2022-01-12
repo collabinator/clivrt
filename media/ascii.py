@@ -24,6 +24,6 @@ class VideoTransformTrack(MediaStreamTrack):
         frame = await self.track.recv()
 
         ve = video_engine.VideoEngine()
-        ve.render_strategy.render_frame(frame.to_ndarray(format="bgr24"))
+        await ve.render_strategy.render_frame(frame.to_ndarray(format="bgr24"))
         
         return frame
