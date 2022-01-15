@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import json
 import logging
+import platform
 from datetime import datetime
 from aiortc.sdp import candidate_from_sdp
 
@@ -16,21 +17,32 @@ from aiortc import (
 from aiortc.contrib.media import MediaBlackhole, MediaPlayer, MediaRecorder, MediaRelay
 from aiortc.contrib.signaling import BYE, object_to_string
 
-relay = MediaRelay()
+local_relay = MediaRelay()
+remote_relay = MediaRelay()
 
 async def run(pc, player, recorder, signaling_url, role):
     def add_tracks():
-        if player and player.audio:
-            pc.addTrack(player.audio)
+        options = {"framerate": "30", "video_size": "640x480"}
+        if platform.system() == "Darwin":
+            webcam = MediaPlayer(
+                "default:none", format="avfoundation", options=options
+            )
+        elif platform.system() == "Windows":
+            webcam = MediaPlayer(
+                "video=Integrated Camera", format="dshow", options=options
+            )
+        else:
+            webcam = MediaPlayer("/dev/video0", format="v4l2", options=options)
+        pc.addTrack(local_relay.subscribe(webcam.video))
 
-        # TODO: Add my webcam stream here
+        # TODO: Add microphone
 
     @pc.on("track")
     def on_track(track):
         print("Receiving %s" % track.kind)
         if track.kind == 'video':
             recorder.addTrack(ascii.VideoTransformTrack(
-                relay.subscribe(track)
+                remote_relay.subscribe(track)
             ))
         # TODO: play audio
 
@@ -44,7 +56,7 @@ async def run(pc, player, recorder, signaling_url, role):
         msg_data = {
             'sdp': json.loads(object_to_string(pc.localDescription)),
             'target': 'jason', # TODO: figure out a way to make this dynamic
-            'type': 'video-ofer',
+            'type': 'video-offer',
             'name': 'cli', # TODO: grab this from args
             'date': str(datetime.now())
         }
