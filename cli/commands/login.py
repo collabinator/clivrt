@@ -15,9 +15,19 @@ Examples:
 """
 
     def do_command(self, *args):
-        # TODO arg handling to get user and uri
-
+        config_defaults = self.config.defaults()
+        user = self.session.my_name
+        server = config_defaults.get('signalinghosturl', 'dummy')
+        if args:
+            for arg in args:
+                if arg == '--user':
+                    user = ''
+                if arg == '--server':
+                    server = ''
         try:
+            #self.session.singaling_host_path = server
+            #self.session.my_name = user
+            logging.debug('connecting to signaling server ' + server + ' as user ' + user)
             self.ws_client.connect_to_signaling_server(self.session.singaling_host_path, self.session.my_name)
         except Exception as e:
             logging.error('login failed')

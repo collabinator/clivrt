@@ -1,3 +1,4 @@
+import configparser
 import traceback
 import logging
 import prompt_toolkit
@@ -14,7 +15,10 @@ from cli.commands.lookup import Lookup
 from cli.datamodel.session import Session
 from cli.network.websockclient import WebSockClient
 from cli import printf
+
 logging.basicConfig(level=logging.DEBUG)
+config = configparser.ConfigParser()
+config.read('.clivrt')
 
 better_completer = NestedCompleter.from_nested_dict({
     'call': None, 'hangup': None,                                   # 1-1 call
@@ -34,7 +38,7 @@ better_completer = NestedCompleter.from_nested_dict({
     'exit': None, 'quit': None                                        # exit
 })
 
-session = Session()
+session = Session(config)
 ws_client = WebSockClient(session = session)
 
 availability_status = 'available'
@@ -45,13 +49,13 @@ def bottom_toolbar():
 
 def main():
     commands = {}
-    dummy = Call(commands, session, ws_client)
-    dummy = Hangup(commands, session, ws_client)
-    dummy = Say(commands, session, ws_client)
-    dummy = Login(commands, session, ws_client)
-    dummy = Logout(commands, session, ws_client)
-    dummy = Quit(commands, session, ws_client)
-    dummy = Lookup(commands, session, ws_client)
+    dummy = Call(commands, config, session, ws_client)
+    dummy = Hangup(commands, config, session, ws_client)
+    dummy = Say(commands, config, session, ws_client)
+    dummy = Login(commands, config, session, ws_client)
+    dummy = Logout(commands, config, session, ws_client)
+    dummy = Quit(commands, config, session, ws_client)
+    dummy = Lookup(commands, config, session, ws_client)
     # TODO load all the commands availble from the commands folder vs manually like above (also loop import classes)
 
     prompt_session = PromptSession(

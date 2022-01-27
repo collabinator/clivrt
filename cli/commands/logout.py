@@ -15,7 +15,7 @@ Examples:
     def do_command(self, *args):
         forced = False
         if args:
-            for arg in args:  # common args processing done here (versus in every command)
+            for arg in args:
                 if arg == '-f':
                     forced = True
                     break

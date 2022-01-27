@@ -1,0 +1,3 @@
+[DEFAULT]
+signalinghosturl = wss://clivrt-signaling-service-clivrt.apps.cluster-pt8dg.pt8dg.sandbox106.opentlc.com
+
