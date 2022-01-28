@@ -1,5 +1,8 @@
+import argparse
 import logging
+from attr import define
 from .command import Command
+import names
 
 class Login(Command):
     cmd_name = 'login'
@@ -16,19 +19,21 @@ Examples:
 
     def do_command(self, *args):
         config_defaults = self.config.defaults()
-        user = self.session.my_name
+        user = config_defaults.get('username', 'Anon'+names.get_first_name())
         server = config_defaults.get('signalinghosturl', 'dummy')
         if args:
-            for arg in args:
-                if arg == '--user':
-                    user = ''
-                if arg == '--server':
-                    server = ''
+            parser = argparse.ArgumentParser()
+            parser.add_argument('--user')
+            parser.add_argument('--server')
+            argsdict, argsunknown = parser.parse_known_args(args)
+            if (argsdict.user): user = argsdict.user
+            if (argsdict.server): server = argsdict.server
+            for unk in argsunknown: logging.warning("Login can't handle unknown option:" + unk)
         try:
-            #self.session.singaling_host_path = server
-            #self.session.my_name = user
+            self.session.my_name = user
+            self.session.singaling_host_path = server
             logging.debug('connecting to signaling server ' + server + ' as user ' + user)
-            self.ws_client.connect_to_signaling_server(self.session.singaling_host_path, self.session.my_name)
+            self.ws_client.connect_to_signaling_server(server, user)
         except Exception as e:
             logging.error('login failed')
             logging.error(e)

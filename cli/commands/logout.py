@@ -24,6 +24,7 @@ Examples:
                 print('not logged in, use -f to attempt forcing a disconnect.')
                 return
             self.ws_client.disconnect()
+            self.session.clear_session()
         except Exception as e:
             logging.error('logout failed')
             logging.error(e)

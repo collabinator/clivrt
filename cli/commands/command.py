@@ -4,6 +4,7 @@ import logging
 from attrs import define
 from cli.datamodel.session import Session
 from cli.network.websockclient import WebSockClient
+
 @define
 class Command:
     cmd_name: str

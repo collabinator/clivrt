@@ -23,3 +23,4 @@ TBD
 
 ## Some other interesting things
 - The architecture design [lives here in Miro](https://miro.com/app/board/uXjVOZLd2gQ=/)
+- Concurrency in Python [a good reference here](https://realpython.com/python-concurrency/#what-is-concurrency)
