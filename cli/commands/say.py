@@ -12,9 +12,9 @@ Examples:
     say A learning experience is one of those things that says, 'You know that thing you just did? Don't do that.
 """
 
-    def do_command(self, *args):
+    async def do_command(self, *args):
         try:
-            if not self.ws_client.is_connected():
+            if not self.network_mgr.is_connected():
                 print("say requires an active connection - please login first")
                 return
         except Exception as e:
@@ -28,7 +28,7 @@ Examples:
         message = ' '.join(args)
         logging.debug('saying ' + message)
         try:
-            self.ws_client.broadcast_message(message, self.session)
+            await self.network_mgr.broadcast_message(message, self.session)
         except Exception as e:
             logging.error('say failed')
             logging.error(e)

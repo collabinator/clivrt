@@ -16,7 +16,8 @@ The main reasons WebRTC was picked for this are:
 2. it's an open standard with [W3C and IETF](https://www.w3.org/2021/01/pressrelease-webrtc-rec.html.en)
 
 ### Building the Code
-TBD
+The supported platform is currently just linux. If you're on windows you can use WSL.
+This project uses pipenv for dependency management.
 
 ### Contributing
 TBD

@@ -12,7 +12,7 @@ Examples:
     logout
 """
 
-    def do_command(self, *args):
+    async def do_command(self, *args):
         forced = False
         if args:
             for arg in args:
@@ -20,10 +20,10 @@ Examples:
                     forced = True
                     break
         try:
-            if not self.ws_client.is_connected() and not forced:
+            if not self.network_mgr.is_connected() and not forced:
                 print('not logged in, use -f to attempt forcing a disconnect.')
                 return
-            self.ws_client.disconnect()
+            await self.network_mgr.disconnect_from_signaling_server()
             self.session.clear_session()
         except Exception as e:
             logging.error('logout failed')

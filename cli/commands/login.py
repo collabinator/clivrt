@@ -17,7 +17,7 @@ Examples:
     login --user jason --server wss://clivrt-signaling-service-clivrt.apps.cluster-pt8dg.pt8dg.sandbox106.opentlc.com
 """
 
-    def do_command(self, *args):
+    async def do_command(self, *args):
         config_defaults = self.config.defaults()
         user = config_defaults.get('username', 'Anon'+names.get_first_name())
         server = config_defaults.get('signalinghosturl', 'dummy')
@@ -33,7 +33,7 @@ Examples:
             self.session.my_name = user
             self.session.singaling_host_path = server
             logging.debug('connecting to signaling server ' + server + ' as user ' + user)
-            self.ws_client.connect_to_signaling_server(server, user)
+            await self.network_mgr.connect_to_signaling_server(server, user)
         except Exception as e:
             logging.error('login failed')
             logging.error(e)

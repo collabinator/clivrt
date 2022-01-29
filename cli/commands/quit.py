@@ -10,6 +10,6 @@ Examples:
     quit
 """
 
-    def do_command(self, *args):
+    async def do_command(self, *args):
         print('GoodBye!')
         sys.exit(0)

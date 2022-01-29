@@ -12,9 +12,9 @@ Examples:
     call andy
 """
 
-    def do_command(self, *args):
+    async def do_command(self, *args):
         try:
-            if not self.ws_client.is_connected():
+            if not self.network_mgr.is_connected():
                 print('call requires an active connection to a signaling server - please login first.')
                 return
         except Exception as e:
@@ -29,7 +29,7 @@ Examples:
             return
 
         try:
-            self.ws_client.invite_user_to_rtc(args[0])
+            await self.network_mgr.invite_user_to_rtc(args[0])
             self.session.connection_status.status = ConnectionStatusEnum.INCALL
             self.session.connection_status.talking_to = args[0]
             # TODO connect WebRTC connection

@@ -2,6 +2,7 @@ import configparser
 import traceback
 import logging
 import prompt_toolkit
+import asyncio
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter, NestedCompleter
 from prompt_toolkit.shortcuts.prompt import prompt
@@ -13,7 +14,7 @@ from cli.commands.logout import Logout
 from cli.commands.quit import Quit
 from cli.commands.lookup import Lookup
 from cli.datamodel.session import Session
-from cli.network.websockclient import WebSockClient
+from cli.network.networkmanager import NetworkManager
 from cli import printf
 
 logging.basicConfig(level=logging.DEBUG)
@@ -39,7 +40,7 @@ better_completer = NestedCompleter.from_nested_dict({
 })
 
 session = Session(config)
-ws_client = WebSockClient(session = session)
+network_mgr = NetworkManager(session = session)
 
 availability_status = 'available'
 def bottom_toolbar():
@@ -47,15 +48,15 @@ def bottom_toolbar():
     # TODO video sent/received packets + bytes + frames + bitrate + etc...
     return prompt_toolkit.HTML(session.connection_status.getDescription() + '/ <b>' + availability_status + '</b> / (Press ctrl+d to exit)')
 
-def main():
+async def main():
     commands = {}
-    dummy = Call(commands, config, session, ws_client)
-    dummy = Hangup(commands, config, session, ws_client)
-    dummy = Say(commands, config, session, ws_client)
-    dummy = Login(commands, config, session, ws_client)
-    dummy = Logout(commands, config, session, ws_client)
-    dummy = Quit(commands, config, session, ws_client)
-    dummy = Lookup(commands, config, session, ws_client)
+    dummy = Call(commands, config, session, network_mgr)
+    dummy = Hangup(commands, config, session, network_mgr)
+    dummy = Say(commands, config, session, network_mgr)
+    dummy = Login(commands, config, session, network_mgr)
+    dummy = Logout(commands, config, session, network_mgr)
+    dummy = Quit(commands, config, session, network_mgr)
+    dummy = Lookup(commands, config, session, network_mgr)
     # TODO load all the commands availble from the commands folder vs manually like above (also loop import classes)
 
     prompt_session = PromptSession(
@@ -63,7 +64,8 @@ def main():
 
     while True:
         try:
-            text = prompt_session.prompt('> ')
+            await network_mgr.tick()
+            text = await prompt_session.prompt_async('> ')
             if not text:
                 continue
             else:
@@ -84,7 +86,7 @@ def main():
             if show_help:
                 command.show_help()
             else:
-                command.do_command(*input_cmd_args)
+                await command.do_command(*input_cmd_args)
 
         except KeyboardInterrupt:
             continue
@@ -95,4 +97,4 @@ def main():
     print('GoodBye!')
 
 if __name__ == '__main__':
-    main()
+    asyncio.get_event_loop().run_until_complete(main())

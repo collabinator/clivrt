@@ -4,7 +4,7 @@ import logging
 
 @define
 class UsersList:
-    available_users: list[str] = Factory(list)
+    available_users: 'list[str]' = Factory(list)
 
     def update_available(self, users:str):
         try:

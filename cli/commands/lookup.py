@@ -10,9 +10,9 @@ Examples:
     lookup
 """
 
-    def do_command(self, *args):
+    async def do_command(self, *args):
         try:
-            if not self.ws_client.is_connected():
+            if not self.network_mgr.is_connected():
                 print('lookup requires an active connection to a signaling server - please login first.')
                 return
         except Exception as e:

@@ -12,7 +12,7 @@ Examples:
     hangup
 """
 
-    def do_command(self, *args):
+    async def do_command(self, *args):
         logging.debug('hangup requested, connection status=' + self.session.connection_status.getDescription())
         if self.session.connection_status.status != ConnectionStatusEnum.INCALL and self.session.connection_status.status != ConnectionStatusEnum.INGROUPCALL:
             print("no call to hangup")
@@ -20,7 +20,7 @@ Examples:
 
         try:
             # TODO disconnect WebRTC session
-            self.ws_client.end_rtc()
+            await self.network_mgr.end_rtc()
             self.session.connection_status.status = ConnectionStatusEnum.NOTINCALL
             self.session.connection_status.group_name = ''
             self.session.connection_status.talking_to = ''

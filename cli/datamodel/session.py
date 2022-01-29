@@ -27,7 +27,7 @@ class Session:
         self.singaling_host_path = ''
 
     def clear_session(self):
-        self.users_list.updateAvailable('[]')
+        self.users_list.update_available('[]')
         self.singaling_host_path = ''
         self.my_name = ''
         self.my_signaling_id = str(uuid.uuid1())
