@@ -17,13 +17,17 @@ from cli.commands.lookup import Lookup
 from cli.datamodel.session import Session
 from cli.network.networkmanager import NetworkManager
 from cli import printf
+from cli.media import videotransformtrack
 
 config = configparser.ConfigParser()
 config.read('.clivrt')
-logging.basicConfig(level=logging.DEBUG)
-# logging.basicConfig(level=logging.WARNING)
-# loglevel = config.defaults().get('loglevel', )
-# logging.getLogger().setLevel(loglevel)
+logging.basicConfig(level=logging.WARNING)
+loglevel_str = config.defaults().get('loglevel', 'WARNING')
+if 'DEBUG' in loglevel_str.upper(): logging.getLogger().setLevel(logging.DEBUG)
+if 'INFO' in loglevel_str.upper(): logging.getLogger().setLevel(logging.INFO)
+if 'WARN' in loglevel_str.upper(): logging.getLogger().setLevel(logging.WARN)
+if 'ERR' in loglevel_str.upper(): logging.getLogger().setLevel(logging.ERROR)
+if 'CRI' in loglevel_str.upper(): logging.getLogger().setLevel(logging.CRITICAL)
 
 better_completer = NestedCompleter.from_nested_dict({
     'call': None, 'hangup': None,                                   # 1-1 call
@@ -107,6 +111,13 @@ async def networktick():
         if network_mgr.is_connected(): await network_mgr.tick()
         await asyncio.sleep(0)
 
+@network_mgr.pc.on('track')
+def on_track(track):
+    logging.debug('Receiving %s' % track.kind)
+    if track.kind == 'video':
+        network_mgr.recorder.addTrack(videotransformtrack.VideoTransformTrack(network_mgr.remote_relay.subscribe(track)))
+    # TODO: play audio track if present
+    
 if __name__ == '__main__':
     networktick = asyncio.get_event_loop().create_task(networktick())
     prompt = asyncio.get_event_loop().create_task(userprompt())

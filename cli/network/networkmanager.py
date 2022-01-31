@@ -8,7 +8,6 @@ from datetime import datetime
 from time import sleep
 from cli import printf
 from cli.datamodel.session import Session
-from cli.media import videotransformtrack
 from aiortc import RTCPeerConnection
 from aiortc.sdp import candidate_from_sdp
 from aiortc.contrib.media import MediaBlackhole, MediaPlayer, MediaRecorder, MediaRelay
@@ -153,6 +152,7 @@ class NetworkManager:
             target = msg_data['target']
             logging.debug('processing video offer message for ' + target + ' from ' + name)
             await self.pc.setRemoteDescription(msg_data['sdp'])
+            logging.debug('starting recorder and adding tracks')
             await self.recorder.start()
             self.add_media_tracks()
             await self.pc.setLocalDescription(await self.pc.createAnswer())
@@ -176,8 +176,7 @@ class NetworkManager:
             target = msg_data['target']
             logging.debug('processing video answer message for ' + target + ' from ' + name)
             msg_obj = Prodict.from_dict(json.loads(msg_data))
-            sdp = msg_obj['sdp']
-            await self.pc.setRemoteDescription(sdp)
+            await self.pc.setRemoteDescription(msg_obj['sdp'])
             await self.recorder.start()
         except Exception as e:
             logging.error('bad message data - could not parse video answer message')
@@ -200,7 +199,7 @@ class NetworkManager:
             return
 
     async def invite_user_to_rtc(self, username: str):
-        logging.debug('this is where we kick off the ICE logic flow')
+        logging.debug('inviting a user to real time video chat')
         self.add_media_tracks()
         await self.pc.setLocalDescription(await self.pc.createOffer())
         msg_data = {
@@ -222,19 +221,17 @@ class NetworkManager:
         # TODO remote_relay anything?
 
     def add_media_tracks(self):
-        options = {'framerate': '30', 'video_size': '640x480'}  # TODO get from session or config
-        if self.session.os_type == 'Darwin':
-            webcam = MediaPlayer('default:none', format='avfoundation', options=options)
-        elif self.session.os_type == 'Windows':
-            webcam = MediaPlayer('video=Integrated Camera', format='dshow', options=options)
-        else:
-            webcam = MediaPlayer('/dev/video0', format='v4l2', options=options)
-        self.pc.addTrack(self.local_relay.subscribe(webcam.video))
-        # TODO: Add microphone track
-
-    @pc.on('track')
-    def on_track(self, track):
-        logging.debug('Receiving %s' % track.kind)
-        if track.kind == 'video':
-            self.recorder.addTrack(videotransformtrack.VideoTransformTrack(self.remote_relay.subscribe(track)))
-        # TODO: play audio track if present
+        try:
+            options = {'framerate': '30', 'video_size': '640x480'}  # TODO get from session or config
+            if self.session.os_type == 'Darwin':
+                webcam = MediaPlayer('default:none', format='avfoundation', options=options)
+            elif self.session.os_type == 'Windows':
+                webcam = MediaPlayer('video=Integrated Camera', format='dshow', options=options)
+            else:
+                webcam = MediaPlayer('/dev/video0', format='v4l2', options=options)
+            self.pc.addTrack(self.local_relay.subscribe(webcam.video))
+            # TODO: Add microphone track
+        except Exception as e:
+            logging.error('media issue - could not add local tracks')
+            logging.error(e)
+            return
