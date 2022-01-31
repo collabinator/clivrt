@@ -1,4 +1,5 @@
 import configparser
+from pickletools import TAKEN_FROM_ARGUMENT1
 import traceback
 import logging
 import prompt_toolkit
@@ -17,9 +18,12 @@ from cli.datamodel.session import Session
 from cli.network.networkmanager import NetworkManager
 from cli import printf
 
-logging.basicConfig(level=logging.DEBUG)
 config = configparser.ConfigParser()
 config.read('.clivrt')
+logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.WARNING)
+# loglevel = config.defaults().get('loglevel', )
+# logging.getLogger().setLevel(loglevel)
 
 better_completer = NestedCompleter.from_nested_dict({
     'call': None, 'hangup': None,                                   # 1-1 call
@@ -44,11 +48,11 @@ network_mgr = NetworkManager(session = session)
 
 availability_status = 'available'
 def bottom_toolbar():
-    # TODO future file data transfer progress
+    # TODO future file data transfer progress (like the pipenv bar)
     # TODO video sent/received packets + bytes + frames + bitrate + etc...
     return prompt_toolkit.HTML(session.connection_status.getDescription() + '/ <b>' + availability_status + '</b> / (Press ctrl+d to exit)')
 
-async def main():
+async def userprompt():
     commands = {}
     dummy = Call(commands, config, session, network_mgr)
     dummy = Hangup(commands, config, session, network_mgr)
@@ -64,8 +68,8 @@ async def main():
 
     while True:
         try:
-            await network_mgr.tick()
             text = await prompt_session.prompt_async('> ')
+
             if not text:
                 continue
             else:
@@ -87,6 +91,8 @@ async def main():
                 command.show_help()
             else:
                 await command.do_command(*input_cmd_args)
+        
+            await asyncio.sleep(0)
 
         except KeyboardInterrupt:
             continue
@@ -96,5 +102,12 @@ async def main():
             traceback.print_exc()
     print('GoodBye!')
 
+async def networktick():
+    while True:
+        if network_mgr.is_connected(): await network_mgr.tick()
+        await asyncio.sleep(0)
+
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(main())
+    networktick = asyncio.get_event_loop().create_task(networktick())
+    prompt = asyncio.get_event_loop().create_task(userprompt())
+    asyncio.get_event_loop().run_forever()

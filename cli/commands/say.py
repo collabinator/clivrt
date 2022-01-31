@@ -28,7 +28,7 @@ Examples:
         message = ' '.join(args)
         logging.debug('saying ' + message)
         try:
-            await self.network_mgr.broadcast_message(message, self.session)
+            await self.network_mgr.broadcast_message(message)
         except Exception as e:
             logging.error('say failed')
             logging.error(e)

@@ -1,0 +1,132 @@
+> login
+DEBUG:root:connecting to signaling server ws://clivrt-signaling-service-dudash-dev.apps.sandbox.x8i5.p1.openshiftapps.com as user AnonEllen
+DEBUG:websockets.client:= connection is CONNECTING
+DEBUG:websockets.client:> GET /chat/AnonEllen HTTP/1.1
+DEBUG:websockets.client:> Host: clivrt-signaling-service-dudash-dev.apps.sandbox.x8i5.p1.openshiftapps.com
+DEBUG:websockets.client:> Upgrade: websocket
+DEBUG:websockets.client:> Connection: Upgrade
+DEBUG:websockets.client:> Sec-WebSocket-Key: S2mrc94E70jHgandwgS4Vw==
+DEBUG:websockets.client:> Sec-WebSocket-Version: 13
+DEBUG:websockets.client:> Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+DEBUG:websockets.client:> User-Agent: Python/3.8 websockets/10.1
+DEBUG:websockets.client:< HTTP/1.1 101 Switching Protocols
+DEBUG:websockets.client:< sec-websocket-location: ws://clivrt-signaling-service-dudash-dev.apps.sandbox.x8i5.p1.openshiftapps.com/chat/AnonEllen
+DEBUG:websockets.client:< sec-websocket-accept: oJPD7PWzVbrgIVV5QR2w3Yy18u4=
+DEBUG:websockets.client:< upgrade: WebSocket
+DEBUG:websockets.client:< connection: upgrade
+DEBUG:websockets.client:< content-length: 0
+DEBUG:websockets.client:< set-cookie: e51d51814d6d85269d377b0a927a1c5e=1915d8a56b8f8236e8002f7ff10d287b; path=/; HttpOnly
+DEBUG:websockets.client:= connection is OPEN
+DEBUG:root:connected to websocket server
+> DEBUG:websockets.client:< TEXT '{"type":"userlist","users":["AnonEllen"]}' [41 bytes]
+DEBUG:root:got userlist
+DEBUG:root:['AnonEllen']
+>
+> say hi
+DEBUG:root:saying hi
+DEBUG:root:broadcasting message: hi
+DEBUG:websockets.client:> TEXT '{"text": "hi", "type": "message", "id": "15cc91...01-30 19:31:25.197459"}' [117 bytes]
+> DEBUG:websockets.client:< TEXT '{"text":"hi","type":"message","id":"15cc9194-82...59","name":"AnonEllen"}' [129 bytes]
+DEBUG:root:got chat message
+AnonEllen: hi
+> DEBUG:websockets.client:< TEXT '{"type":"userlist","users":["AnonEllen","sercureguy"]}' [54 bytes]
+DEBUG:root:got userlist
+DEBUG:root:['AnonEllen', 'sercureguy']
+DEBUG:websockets.client:% sending keepalive ping
+DEBUG:websockets.client:> PING 9e bd 86 72 [binary, 4 bytes]
+DEBUG:websockets.client:< PONG 9e bd 86 72 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:websockets.client:< TEXT '{"text":"hi elle","type":"message","id":0,"date...02,"name":"sercureguy"}' [83 bytes]
+DEBUG:root:got chat message(Press ctrl+d to exit)                                                                                                                   
+sercureguy: hi elle
+> DEBUG:websockets.client:< TEXT '{"name":"sercureguy","target":"AnonEllen","type...7-bfd737dfad06\\r\\n"}}' [6313 bytes]
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...0},"name":"sercureguy"}' [230 bytes]
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...0},"name":"sercureguy"}' [247 bytes]
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...1},"name":"sercureguy"}' [230 bytes]
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...1},"name":"sercureguy"}' [247 bytes]
+
+
+DEBUG:root:got video offer message
+DEBUG:root:processing video offer message for AnonEllen from sercureguy
+ERROR:root:bad message data - could not parse video offer message
+ERROR:root:'dict' object has no attribute 'sdp't)                                                                                                                   
+
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:2734686519 1 udp 2122260223 172.19.96.1 64938 typ host generation 0 ufrag 7+9X network-id 2', 'sdpMid': '0', 'sdpMLineIndex': 0}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:3197590736 1 udp 2122194687 192.168.4.83 64939 typ host generation 0 ufrag 7+9X network-id 1 network-cost 10', 'sdpMid': '0', 'sdpMLineIndex': 0}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:2734686519 1 udp 2122260223 172.19.96.1 64940 typ host generation 0 ufrag 7+9X network-id 2', 'sdpMid': '1', 'sdpMLineIndex': 1}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:3197590736 1 udp 2122194687 192.168.4.83 64941 typ host generation 0 ufrag 7+9X network-id 1 network-cost 10', 'sdpMid': '1', 'sdpMLineIndex': 1}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...0},"name":"sercureguy"}' [241 bytes]
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...0},"name":"sercureguy"}' [258 bytes]
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...1},"name":"sercureguy"}' [241 bytes]
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...1},"name":"sercureguy"}' [258 bytes]
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...0},"name":"sercureguy"}' [281 bytes]
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:3984850375 1 tcp 1518280447 172.19.96.1 9 typ host tcptype active generation 0 ufrag 7+9X network-id 2', 'sdpMid': '0', 'sdpMLineIndex': 0}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+DEBUG:websockets.client:< TEXT '{"type":"new-ice-candidate","target":"AnonEllen...1},"name":"sercureguy"}' [281 bytes]
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:4027883552 1 tcp 1518214911 192.168.4.83 9 typ host tcptype active generation 0 ufrag 7+9X network-id 1 network-cost 10', 'sdpMid': '0', 'sdpMLineIndex': 0}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:3984850375 1 tcp 1518280447 172.19.96.1 9 typ host tcptype active generation 0 ufrag 7+9X network-id 2', 'sdpMid': '1', 'sdpMLineIndex': 1}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:4027883552 1 tcp 1518214911 192.168.4.83 9 typ host tcptype active generation 0 ufrag 7+9X network-id 1 network-cost 10', 'sdpMid': '1', 'sdpMLineIndex': 1}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:1216816388 1 udp 1685987071 71.241.252.148 64939 typ srflx raddr 192.168.4.83 rport 64939 generation 0 ufrag 7+9X network-id 1 network-cost 10', 'sdpMid': '0', 'sdpMLineIndex': 0}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+DEBUG:root:got ICE candidate message
+DEBUG:root:{'type': 'new-ice-candidate', 'target': 'AnonEllen', 'candidate': {'candidate': 'candidate:1216816388 1 udp 1685987071 71.241.252.148 64941 typ srflx raddr 192.168.4.83 rport 64941 generation 0 ufrag 7+9X network-id 1 network-cost 10', 'sdpMid': '1', 'sdpMLineIndex': 1}, 'name': 'sercureguy'}
+ERROR:root:bad message data - could not parse ICE candiate message
+ERROR:root:'RTCIceCandidate' object is not subscriptable
+
+> say hmm
+DEBUG:root:saying hmm
+DEBUG:root:broadcasting message: hmm
+DEBUG:websockets.client:> TEXT '{"text": "hmm", "type": "message", "id": "15cc9...01-30 19:31:51.131958"}' [118 bytes]
+> DEBUG:websockets.client:< TEXT '{"text":"hmm","type":"message","id":"15cc9194-8...58","name":"AnonEllen"}' [130 bytes]
+DEBUG:root:got chat message
+AnonEllen: hmm
+
+> DEBUG:websockets.client:% sending keepalive ping
+DEBUG:websockets.client:> PING 56 b6 8c 1e [binary, 4 bytes]
+DEBUG:websockets.client:< PONG 56 b6 8c 1e [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+
+> DEBUG:websockets.client:% sending keepalive ping
+DEBUG:websockets.client:> PING ad a1 6e dc [binary, 4 bytes]
+DEBUG:websockets.client:< PONG ad a1 6e dc [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong

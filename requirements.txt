@@ -6,7 +6,6 @@
 #
 
 -i https://pypi.python.org/simple
--e git+https://github.com/collabinator/video-to-ascii.git@6e1dd72db1dba531867036518cd9b77cf42d2074#egg=video-to-ascii
 aiohttp==3.8.1
 aioice==0.7.5
 aiortc==1.2.1
@@ -23,6 +22,7 @@ dnspython==2.1.0
 ffmpeg-python==0.2.0
 frozenlist==1.3.0
 future==0.18.2; python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'
+git+https://github.com/collabinator/video-to-ascii.git@6e1dd72db1dba531867036518cd9b77cf42d2074#egg=video-to-ascii
 google-crc32c==1.3.0
 idna==3.3
 itsdangerous==2.0.1
@@ -31,11 +31,13 @@ names==0.3.0
 netifaces==0.11.0
 numpy==1.22.0
 opencv-python==4.5.5.62
+prodict==0.8.18
 prompt-toolkit==3.0.26
 pycparser==2.21
 pyee==8.2.2
 pylibsrtp==0.7.0
 wcwidth==0.2.5
 websocket-client==1.2.3
+websockets==10.1
 xtermcolor==1.3
 yarl==1.7.2

@@ -1,3 +1,4 @@
 [DEFAULT]
-signalinghosturl = ws://127.0.0.1:8080
+signalinghosturl = ws://clivrt-signaling-service-dudash-dev.apps.sandbox.x8i5.p1.openshiftapps.com
 autoanswer = true
+loglevel = 'DEBUG'
