@@ -22,6 +22,12 @@ This project uses pipenv for dependency management.
 ### Contributing
 TBD
 
+## Built Upon
+This project uses the awesome open source work from many other folks. There are a few key projects this wouldn't be possible without:
+* [aiortc](https://github.com/aiortc/aiortc), a simple readable python library for WebRTC and ORTC
+* [video_to_ascii](https://github.com/joelibaceta/video-to-ascii), simple python package to play videos in the terminal using characters as pixels
+* [prompt_toolkit](https://python-prompt-toolkit.readthedocs.io/en/master/index.html), a library for building powerful interactive command line apps
+
 ## Some other interesting things
 - The architecture design [lives here in Miro](https://miro.com/app/board/uXjVOZLd2gQ=/)
 - Concurrency in Python [a good reference here](https://realpython.com/python-concurrency/#what-is-concurrency)

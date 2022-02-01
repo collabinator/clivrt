@@ -1,9 +1,9 @@
-from email import message
 import logging
 from attrs import define
 import websockets
 import json
 import asyncio
+from configparser import ConfigParser
 from datetime import datetime
 from time import sleep
 from cli import printf
@@ -17,13 +17,14 @@ from prodict import Prodict
 @define
 class NetworkManager:
     session: Session = None
+    config: ConfigParser = None
 
     # Websocket client
     wsclient: websockets.WebSocketClientProtocol = None
 
     # RTC peering
-    local_relay = MediaRelay()
-    remote_relay = MediaRelay()
+    local_relay = MediaRelay()  # my webcam
+    remote_relay = MediaRelay() # incoming video
     pc = RTCPeerConnection() # TODO: Add STUN Servers to pc
     recorder = MediaBlackhole()
 
@@ -72,7 +73,7 @@ class NetworkManager:
             return
         else:
             try:
-                self.wsclient.close()
+                await self.wsclient.close()
                 self.wsclient = None
                 sleep(1)
                 logging.debug('WebSocketApp connection closed')
@@ -152,7 +153,7 @@ class NetworkManager:
             target = msg_data['target']
             logging.debug('processing video offer message for ' + target + ' from ' + name)
             await self.pc.setRemoteDescription(msg_data['sdp'])
-            logging.debug('starting recorder and adding tracks')
+            logging.debug('starting recorder and adding my webcam video track')
             await self.recorder.start()
             self.add_media_tracks()
             await self.pc.setLocalDescription(await self.pc.createAnswer())
@@ -221,8 +222,10 @@ class NetworkManager:
         # TODO remote_relay anything?
 
     def add_media_tracks(self):
+        framerate = self.config.defaults().get('framerate', '30')
+        video_size = self.config.defaults().get('video_size', '640x480')
         try:
-            options = {'framerate': '30', 'video_size': '640x480'}  # TODO get from session or config
+            options = {'framerate': framerate, video_size: '640x480'}
             if self.session.os_type == 'Darwin':
                 webcam = MediaPlayer('default:none', format='avfoundation', options=options)
             elif self.session.os_type == 'Windows':

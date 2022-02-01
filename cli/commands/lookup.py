@@ -1,4 +1,6 @@
 import logging
+
+from cli import printf
 from .command import Command
 
 class Lookup(Command):
@@ -18,13 +20,14 @@ Examples:
         except Exception as e:
             logging.error('lookup failed')
             logging.error(e)
+            printf(f'<error>users lookup failed</error>')
             return
 
         if self.session.users_list is None or len(self.session.users_list.available_users) < 1:
-            print('no users found')
+            printf(f'<info>no users found</info>')
             return
 
-        print('The following users are available:')
+        printf(f'<info>The following users are available:</info>')
         for user in self.session.users_list.available_users:
-            print(user)
- 
+            printf(f'* ' + user)
+

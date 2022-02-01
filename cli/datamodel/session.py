@@ -27,6 +27,7 @@ class Session:
         self.singaling_host_path = ''
 
     def clear_session(self):
+        # TODO getting error here --- 'Session' object attribute 'my_signaling_id' is read-only
         self.users_list.update_available('[]')
         self.singaling_host_path = ''
         self.my_name = ''

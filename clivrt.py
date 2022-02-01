@@ -1,12 +1,16 @@
 import configparser
-from pickletools import TAKEN_FROM_ARGUMENT1
 import traceback
 import logging
-import prompt_toolkit
 import asyncio
+import prompt_toolkit
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter, NestedCompleter
 from prompt_toolkit.shortcuts.prompt import prompt
+# Will use these soon to split the screen into sections
+# from prompt_toolkit.application import Application
+# from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign
+# from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
+# from prompt_toolkit.layout.layout import Layout
 from cli.commands.call import Call
 from cli.commands.hangup import Hangup
 from cli.commands.say import Say
@@ -48,7 +52,7 @@ better_completer = NestedCompleter.from_nested_dict({
 })
 
 session = Session(config)
-network_mgr = NetworkManager(session = session)
+network_mgr = NetworkManager(session=session, config=config)
 
 availability_status = 'available'
 def bottom_toolbar():
@@ -111,13 +115,17 @@ async def networktick():
         if network_mgr.is_connected(): await network_mgr.tick()
         await asyncio.sleep(0)
 
+vidstyle = config.defaults().get('videostyle', 'just-ascii')
+
 @network_mgr.pc.on('track')
 def on_track(track):
     logging.debug('Receiving %s' % track.kind)
     if track.kind == 'video':
-        network_mgr.recorder.addTrack(videotransformtrack.VideoTransformTrack(network_mgr.remote_relay.subscribe(track)))
+        videotransform = videotransformtrack.VideoTransformTrack(network_mgr.remote_relay.subscribe(track)) # Create a 'proxy' around the video for transforming
+        videotransform.ve.set_strategy(vidstyle)
+        network_mgr.recorder.addTrack(videotransform)
     # TODO: play audio track if present
-    
+
 if __name__ == '__main__':
     networktick = asyncio.get_event_loop().create_task(networktick())
     prompt = asyncio.get_event_loop().create_task(userprompt())

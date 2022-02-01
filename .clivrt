@@ -1,4 +1,7 @@
 [DEFAULT]
 signalinghosturl = ws://clivrt-signaling-service-dudash-dev.apps.sandbox.x8i5.p1.openshiftapps.com
 autoanswer = true
-loglevel = 'ERROR'
+loglevel = CRITICAL
+videostyle = just-ascii
+framerate = 30
+video_size = 800x600
