@@ -1,5 +1,4 @@
 import logging
-
 from cli import printf
 from .command import Command
 
@@ -18,7 +17,6 @@ Examples:
                 print('lookup requires an active connection to a signaling server - please login first.')
                 return
         except Exception as e:
-            logging.error('lookup failed')
             logging.error(e)
             printf(f'<error>users lookup failed</error>')
             return
@@ -28,6 +26,5 @@ Examples:
             return
 
         printf(f'<info>The following users are available:</info>')
-        for user in self.session.users_list.available_users:
-            printf(f'* ' + user)
+        printf(self.session.users_list.available_users)
 

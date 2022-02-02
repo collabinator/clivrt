@@ -1,6 +1,7 @@
 import logging
 from .command import Command
 from cli.datamodel.connectionstatus import ConnectionStatusEnum
+from cli import printf
 
 class Say(Command):
     cmd_name = 'say'
@@ -18,18 +19,18 @@ Examples:
                 print("say requires an active connection - please login first")
                 return
         except Exception as e:
-            logging.error('say failed')
             logging.error(e)
+            printf('<error>say failed</error>')
             return
 
         if not args:
-            print('say requires a message')
+            printf('<info>say requires a message</info>')
             return
         message = ' '.join(args)
         logging.debug('saying ' + message)
         try:
             await self.network_mgr.broadcast_message(message)
         except Exception as e:
-            logging.error('say failed')
             logging.error(e)
+            printf('<error>say failed</error>')
             return

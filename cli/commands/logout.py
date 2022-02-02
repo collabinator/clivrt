@@ -1,5 +1,6 @@
 import logging
 from .command import Command
+from cli import printf
 
 class Logout(Command):
     cmd_name = 'logout'
@@ -21,11 +22,11 @@ Examples:
                     break
         try:
             if not self.network_mgr.is_connected() and not forced:
-                print('not logged in, use -f to attempt forcing a disconnect.')
+                printf('<info>not logged in, use -f to attempt forcing a disconnect.</info>')
                 return
             await self.network_mgr.disconnect_from_signaling_server()
             self.session.clear_session()
         except Exception as e:
-            logging.error('logout failed')
             logging.error(e)
+            printf(f'<error>logout failed</error>')
             return

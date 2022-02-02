@@ -3,6 +3,7 @@ import logging
 from attr import define
 from .command import Command
 import names
+from cli import printf
 
 class Login(Command):
     cmd_name = 'login'
@@ -35,6 +36,6 @@ Examples:
             logging.debug('connecting to signaling server ' + server + ' as user ' + user)
             await self.network_mgr.connect_to_signaling_server(server, user)
         except Exception as e:
-            logging.error('login failed')
             logging.error(e)
+            printf(f'<error>login failed</error>')
             return

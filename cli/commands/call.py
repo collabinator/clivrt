@@ -1,6 +1,7 @@
 import logging
 from .command import Command
 from cli.datamodel.connectionstatus import ConnectionStatusEnum
+from cli import printf
 
 class Call(Command):
     cmd_name = 'call'
@@ -15,14 +16,14 @@ Examples:
     async def do_command(self, *args):
         try:
             if not self.network_mgr.is_connected():
-                print('call requires an active connection to a signaling server - please login first.')
+                printf('<info>call requires an active connection to a signaling server - please login first.</info>')
                 return
         except Exception as e:
-            logging.error('call failed')
             logging.error(e)
+            printf(f'<error>call failed - please restart</error>')
             return
         if not args:
-            print('call requires a name for someone to call')
+            printf('<info>call requires a name for someone to call</info>')
             return
         if self.session.connection_status.status == ConnectionStatusEnum.INCALL or self.session.connection_status.status == ConnectionStatusEnum.INGROUPCALL:
             print("hangup before calling someone else")
@@ -32,8 +33,7 @@ Examples:
             await self.network_mgr.invite_user_to_rtc(args[0])
             self.session.connection_status.status = ConnectionStatusEnum.INCALL
             self.session.connection_status.talking_to = args[0]
-            # TODO connect WebRTC connection
         except Exception as e:
-            logging.error('call failed')
             logging.error(e)
+            printf(f'<error>call failed - error establishing RTC connection</error>')
             return

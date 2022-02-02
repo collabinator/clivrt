@@ -54,11 +54,12 @@ better_completer = NestedCompleter.from_nested_dict({
 session = Session(config)
 network_mgr = NetworkManager(session=session, config=config)
 
-availability_status = 'available'
 def bottom_toolbar():
     # TODO future file data transfer progress (like the pipenv bar)
     # TODO video sent/received packets + bytes + frames + bitrate + etc...
-    return prompt_toolkit.HTML(session.connection_status.getDescription() + '/ <b>' + availability_status + '</b> / (Press ctrl+d to exit)')
+    signaling_status = '⛔'
+    if network_mgr.is_connected(): signaling_status = '📢'
+    return prompt_toolkit.HTML(session.connection_status.getDescription() + ' / ' + signaling_status + ' / (Press ctrl+d to exit)')
 
 async def userprompt():
     commands = {}

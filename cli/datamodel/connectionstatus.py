@@ -14,8 +14,8 @@ class ConnectionStatus:
 
     def getDescription(self):
         if self.status == ConnectionStatusEnum.INCALL:
-            return '1-1 call (' + self.talking_to + ')'
+            return '👤(' + self.talking_to + ')'
         elif self.status == ConnectionStatusEnum.NOTINCALL:
-            return 'No connection'
+            return '📵'
         elif self.status == ConnectionStatusEnum.INGROUPCALL:
-            return 'room: ' + self.group_name
+            return '👥(' + self.group_name + ')'

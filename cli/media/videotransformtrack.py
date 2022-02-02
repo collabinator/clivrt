@@ -2,6 +2,7 @@
 from video_to_ascii import video_engine
 from aiortc.contrib.media import MediaStreamTrack
 import sys
+import cProfile
 
 PLATFORM = 0
 if sys.platform != 'win32': PLATFORM = 1

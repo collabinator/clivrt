@@ -7,6 +7,7 @@ from configparser import ConfigParser
 from datetime import datetime
 from time import sleep
 from cli import printf
+from cli.datamodel.connectionstatus import ConnectionStatusEnum
 from cli.datamodel.session import Session
 from aiortc import RTCPeerConnection
 from aiortc.sdp import candidate_from_sdp
@@ -55,8 +56,7 @@ class NetworkManager:
 
     async def connect_to_signaling_server(self, uri: str, my_username: str):
         if self.wsclient is not None:
-            logging.warning('trying to connect to server but already connected to ' + self.wsclient.remote_address)
-            # TODO should we force a disconnect?
+            logging.warning('trying to connect to server but already connected to ' + self.wsclient.host)
         try:
             # for now the endpoint is /chat/yourusername (I think the server expects this TBD)
             self.wsclient = await websockets.connect(uri + '/chat/' + my_username)
@@ -165,6 +165,8 @@ class NetworkManager:
                 'date': str(datetime.now())
             }
             await self.wsclient.send(json.dumps(msg_data))
+            self.session.connection_status.status = ConnectionStatusEnum.INCALL
+            self.session.connection_status.talking_to = name
         except Exception as e:
             logging.error('bad message data - could not parse video offer message')
             logging.error(e)
@@ -179,6 +181,8 @@ class NetworkManager:
             msg_obj = Prodict.from_dict(json.loads(msg_data))
             await self.pc.setRemoteDescription(msg_obj['sdp'])
             await self.recorder.start()
+            self.session.connection_status.status = ConnectionStatusEnum.INCALL
+            self.session.connection_status.talking_to = name
         except Exception as e:
             logging.error('bad message data - could not parse video answer message')
             logging.error(e)
@@ -214,9 +218,13 @@ class NetworkManager:
 
     async def end_rtc(self):
         logging.debug('sending hangup message to signaling server but stay connected')
+        # TODO - this isn't quite right, wont let me reconnect - getting the error:
+        # >>>>> Cannot handle offer in signaling state "closed"
         await self.recorder.stop()
         await self.pc.close()
-        # self.wsclient.send(json.dumps(msg_data)) # is there some RTC message to send?
+        self.session.connection_status.status = ConnectionStatusEnum.NOTINCALL
+        self.session.connection_status.talking_to = ''
+        # TODO self.wsclient.send(json.dumps(msg_data)) # is there some RTC message to send?
         # TODO clear tracks?
         # TODO local_relay unsubscribe?
         # TODO remote_relay anything?
