@@ -25,6 +25,7 @@ names = "==0.3.0"
 netifaces = "==0.11.0"
 numpy = "==1.22.0"
 opencv-python = "==4.5.5.62"
+prodict = "*"
 prompt-toolkit = "==3.0.26"
 pycparser = "==2.21"
 pyee = "==8.2.2"
@@ -35,9 +36,9 @@ yarl = "==1.7.2"
 aiortc = "*"
 video-to-ascii = {ref = "main", git = "https://github.com/collabinator/video-to-ascii.git"}
 websockets = "*"
-prodict = "*"
 
 [dev-packages]
+pyinstaller = {file = "https://github.com/pyinstaller/pyinstaller/archive/develop.zip"}
 
 [requires]
 python_version = "3.8"
