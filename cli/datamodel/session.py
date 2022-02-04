@@ -25,7 +25,7 @@ class Session:
         self.os_type = platform.system()
         self.my_name = ''
         self.singaling_host_path = ''
-        my_signaling_id = str(uuid.uuid1())
+        self.my_signaling_id = str(uuid.uuid1())
 
     def clear_session(self):
         # TODO getting error here --- 'Session' object attribute 'my_signaling_id' is read-only
@@ -33,4 +33,4 @@ class Session:
         self.singaling_host_path = ''
         self.my_name = ''
         self.my_signaling_id = str(uuid.uuid1()) # TODO do I really need a new ID per session?
-        connection_status = ConnectionStatus(ConnectionStatusEnum.NOTINCALL)
+        self.connection_status = ConnectionStatus(ConnectionStatusEnum.NOTINCALL)
