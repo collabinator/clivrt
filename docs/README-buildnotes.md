@@ -35,7 +35,10 @@ sudo apt update
 ```
 
 * Install dependencies for aiortc
+There seems to be an issue on the jetson with a mismatch in dependencies with NVIDIA's ffmpeg and pyAv - [more details here](https://github.com/PyAV-Org/PyAV/issues/619), looks like I might need to build ffmpeg from source. The challenge will be to ensure I can still leverage any patches/build options NVIDIA added for leveraging their hardware performance.
 ```
 sudo apt-get install libopus-dev libvpx-dev
 ```
 
+* Build container
+This is TBD but using this might help: https://github.com/dusty-nv/jetson-containers#pre-built-container-images
