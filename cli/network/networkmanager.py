@@ -230,18 +230,21 @@ class NetworkManager:
         # TODO remote_relay anything?
 
     def add_media_tracks(self):
+        # setup outgoing video/audio using config file values
         framerate = self.config.defaults().get('framerate', '30')
         video_size = self.config.defaults().get('video_size', '640x480')
         try:
             options = {'framerate': framerate, video_size: '640x480'}
             if self.session.os_type == 'Darwin':
-                webcam = MediaPlayer('default:none', format='avfoundation', options=options)
-            elif self.session.os_type == 'Windows':
-                webcam = MediaPlayer('video=Integrated Camera', format='dshow', options=options)
+                webcam = MediaPlayer(self.session.videodevice, format='avfoundation', options=options) # default:none
+            elif self.session.os_type == 'Windows': 
+                webcam = MediaPlayer(self.session.videodevice, format='dshow', options=options) # video=Integrated Camera
             else:
-                webcam = MediaPlayer('/dev/video0', format='v4l2', options=options)
+                webcam = MediaPlayer(self.session.videodevice, format='v4l2', options=options) # /dev/video0
             self.pc.addTrack(self.local_relay.subscribe(webcam.video))
+
             # TODO: Add microphone track
+
         except Exception as e:
             logging.error('media issue - could not add local tracks')
             logging.error(e)

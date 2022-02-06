@@ -19,6 +19,7 @@ class Session:
     singaling_host_path: str = field(init=False)
     my_name: str = field(init=False)
     os_type: str = field(init=False)
+    videodevice: str = field(init=False)
 
     def __attrs_post_init__(self):
         self.users_list.update_available('[]')
@@ -26,6 +27,7 @@ class Session:
         self.my_name = ''
         self.singaling_host_path = ''
         self.my_signaling_id = str(uuid.uuid1())
+        self.videodevice = self.config.defaults().get('webcam', '/dev/video0')
 
     def clear_session(self):
         # TODO getting error here --- 'Session' object attribute 'my_signaling_id' is read-only

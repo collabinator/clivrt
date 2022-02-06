@@ -6,6 +6,7 @@ import prompt_toolkit
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter, NestedCompleter
 from prompt_toolkit.shortcuts.prompt import prompt
+from prompt_toolkit.styles import Style
 # Will use these soon to split the screen into sections
 # from prompt_toolkit.application import Application
 # from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign
@@ -54,12 +55,21 @@ better_completer = NestedCompleter.from_nested_dict({
 session = Session(config)
 network_mgr = NetworkManager(session=session, config=config)
 
+tbstyle = Style.from_dict({
+    'bottom-toolbar': '#33475b bg:#ffffff',
+})
 def bottom_toolbar():
     # TODO future file data transfer progress (like the pipenv bar)
     # TODO video sent/received packets + bytes + frames + bitrate + etc...
     signaling_status = '⛔'
-    if network_mgr.is_connected(): signaling_status = '📢'
-    return prompt_toolkit.HTML(session.connection_status.getDescription() + ' / ' + signaling_status + ' / (Press ctrl+d to exit)')
+    if network_mgr.is_connected(): 
+        signaling_status = '📢 🔓'
+        if network_mgr.wsclient.secure: signaling_status = '📢 🔒'
+    # return prompt_toolkit.HTML(
+    return [('class:bottom-toolbar',
+        session.connection_status.getDescription() + \
+        ' ▪️ ' + signaling_status + \
+        ' ▪️ (Press ctrl+d to exit)')]
 
 async def userprompt():
     commands = {}
@@ -73,7 +83,7 @@ async def userprompt():
     # TODO load all the commands availble from the commands folder vs manually like above (also loop import classes)
 
     prompt_session = PromptSession(
-        completer=better_completer, bottom_toolbar=bottom_toolbar)
+        completer=better_completer, bottom_toolbar=bottom_toolbar, style=tbstyle)
 
     while True:
         try:

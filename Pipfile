@@ -36,6 +36,7 @@ yarl = "==1.7.2"
 aiortc = "*"
 video-to-ascii = {ref = "main", git = "https://github.com/collabinator/video-to-ascii.git"}
 websockets = "*"
+pygments = "*"
 
 [dev-packages]
 pyinstaller = {file = "https://github.com/pyinstaller/pyinstaller/archive/develop.zip"}
