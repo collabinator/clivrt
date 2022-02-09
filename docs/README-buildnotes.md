@@ -41,7 +41,12 @@ There seems to be an issue on the jetson with a mismatch in dependencies with NV
 sudo apt-get install libopus-dev libvpx-dev
 ```
 
-* Build container
+* Build container - this is TBD but using these links might help
+  * https://github.com/dusty-nv/jetson-containers#pre-built-container-images
+  * https://github.com/NVIDIA/nvidia-docker/wiki/NVIDIA-Container-Runtime-on-Jetson
 
-This is TBD but using these links might help: https://github.com/dusty-nv/jetson-containers#pre-built-container-images
-https://github.com/NVIDIA/nvidia-docker/wiki/NVIDIA-Container-Runtime-on-Jetson
+
+* Hardware support
+The Jetson is a edge device with low computing capabilities - so using the dedicated hardware efficiently is important. If everything just uses CPU then we are doing it wrong. Using software libraries that can leverage the HW is important (encoding and decoding video). Initial research shows ffmpeg available for the Jetson might not support HW enc/dec - also H.264 might be required vs. other formats. See here for discussion/alternatives: 
+  * https://forums.developer.nvidia.com/t/webrtc-low-performances-with-nvidia-encoder/115324
+  * https://docs.nvidia.com/jetson/l4t/index.html#page/Tegra%20Linux%20Driver%20Package%20Development%20Guide/hardware_acceleration_in_webrtc.html#wwpID0E0OB0HA

@@ -1,5 +1,5 @@
 # clivrt
-CLI app to do video calls but from the terminal. Just fun little project that let's you chat with friends in a retro kidna way - while staying in your CLI. 
+CLI app to do video calls but from the terminal. Just fun little project that let's you chat with friends in a retro kinda way - while staying in your CLI. 
 
 ![Screenshot](docs/clivrtsmilethumbsup.png?raw=true)
 
@@ -9,8 +9,8 @@ TBD
 ## CLI reference
 TBD
 
-### Config File
-If file is is located in the same folder as the cli executable and named `.clivrt`, it will be used for default config. Here's an example:
+### Configuration
+The file is is located in the same folder as the cli executable and named `.clivrt`, it will be used for default config. Here's an example:
 ```
 [DEFAULT]
 signalinghosturl = wss://signaling-s-dudash-dev.apps.sandbox.x8i5.p1.openshiftapps.com
@@ -23,7 +23,7 @@ video_size = 800x600
 ```
 * signalinghosturl = Which server to connect to for finding/connecting/chatting with peers (note once a peer connection is established this is no longer required for video chat). Must begin with ws:// or wss://
 * loglevel = [INFO, DEBUG, WARN, ERROR, CRITICAL] how much log data to display
-* videostyle = [just-ascii, ascii-color, filled-ascii]
+* videostyle = [just-ascii, ascii-color, filled-ascii] pick your sytle for visualizing the video as ASCII
 * webcam = Path to your webcam. Some examples: [linux: /dev/video0, windows: video=Integrated Camera, mac: default:none]
 * framerate = outgoing video framerate
 * video_size = outgoing video resolution
