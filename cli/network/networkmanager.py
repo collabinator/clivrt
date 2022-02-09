@@ -140,6 +140,8 @@ class NetworkManager:
             text = msg_data['text']
             # TODO move chat off into a side panel on it's own
             printf(f'<chat><b>{name}</b>: <i>{text}</i></chat>')
+            # TODO is user I'm chatting with left hangup call
+            # eg. "SERVER: User aaa left"
         except Exception as e:
             logging.error('bad message data - could not parse chat message')
             logging.error(e)
@@ -178,8 +180,7 @@ class NetworkManager:
             name = msg_data['name']
             target = msg_data['target']
             logging.debug('processing video answer message for ' + target + ' from ' + name)
-            msg_obj = Prodict.from_dict(json.loads(msg_data))
-            await self.pc.setRemoteDescription(msg_obj['sdp'])
+            await self.pc.setRemoteDescription(msg_data['sdp'])
             await self.recorder.start()
             self.session.connection_status.status = ConnectionStatusEnum.INCALL
             self.session.connection_status.talking_to = name
@@ -218,10 +219,8 @@ class NetworkManager:
 
     async def end_rtc(self):
         logging.debug('sending hangup message to signaling server but stay connected')
-        # TODO - this isn't quite right, wont let me reconnect - getting the error:
-        # >>>>> Cannot handle offer in signaling state "closed"
         await self.recorder.stop()
-        await self.pc.close()
+        # await self.pc.close()
         self.session.connection_status.status = ConnectionStatusEnum.NOTINCALL
         self.session.connection_status.talking_to = ''
         # TODO self.wsclient.send(json.dumps(msg_data)) # is there some RTC message to send?
@@ -235,7 +234,9 @@ class NetworkManager:
         video_size = self.config.defaults().get('video_size', '640x480')
         try:
             options = {'framerate': framerate, video_size: '640x480'}
-            if self.session.os_type == 'Darwin':
+            if self.session.videodevice == 'FAKE':
+                webcam = MediaPlayer('http://download.tsi.telecom-paristech.fr/gpac/dataset/dash/uhd/mux_sources/hevcds_720p30_2M.mp4')
+            elif self.session.os_type == 'Darwin':
                 webcam = MediaPlayer(self.session.videodevice, format='avfoundation', options=options) # default:none
             elif self.session.os_type == 'Windows': 
                 webcam = MediaPlayer(self.session.videodevice, format='dshow', options=options) # video=Integrated Camera
