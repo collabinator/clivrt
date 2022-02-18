@@ -6,7 +6,7 @@ CLI app to do video calls but from the terminal. Just fun little project that le
 ## How to use this
 Download an official release [from here](https://github.com/collabinator/clivrt/releases). Tweak your `.clivrt` as needed (a bit manual right now :disappointed_relieved:). Run the app `./clivrt`.
 
-Once in the app you'll see status across the bottom for both a connection to the chat server (text) and direct to other users (video/audio). Initially, both will be disconnected. Type `login` to login to the default chat server as an anonymous user (you can use `--server` and `--user` to connect to a private server and set your username). A locked lock indicated secure connection and an unlocked lock indicates insecure.
+Once in the app you'll see status across the bottom for both a connection to the chat server 📢 (text) and direct to other users 👤 (video/audio). Initially, both will be disconnected. Type `login` to login to the default chat server as an anonymous user (you can use `--server` and `--user` to connect to a private server and set your username). A locked lock 🔒 indicates a secure connection and an unlocked lock 🔓 indicates insecure.
 
 Once logged in you can see who else is online with `lookup`. You can text chat to everyone with `say <message>`. And you can directly call someone with `call <user>`.
 
