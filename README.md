@@ -4,10 +4,25 @@ CLI app to do video calls but from the terminal. Just fun little project that le
 ![Screenshot](docs/clivrtsmilethumbsup.png?raw=true)
 
 ## How to use this
-TBD
+Download an official release [from here](https://github.com/collabinator/clivrt/releases). Tweak your `.clivrt` as needed (a bit manual right now :disappointed_relieved:). Run the app `./clivrt`.
+
+Once in the app you'll see status across the bottom for both a connection to the chat server (text) and direct to other users (video/audio). Initially, both will be disconnected. Type `login` to login to the default chat server as an anonymous user (you can use `--server` and `--user` to connect to a private server and set your username).
+
+Once logged in you can see who else is online with `lookup`. You can text chat to everyone with `say <message>`. And you can directly call someone with `call <user>`.
+
+When you are done with your call, `hangup`.
+
+When you are ready to leave the server `logout` or just `quit`
 
 ## CLI reference
-TBD
+Use tab to autocomplete any of the following:
+* login (options: --user, --server)
+* logout (options: -f to force)
+* lookup
+* say
+* call
+* hangup
+* quit
 
 ### Configuration
 The file is is located in the same folder as the cli executable and named `.clivrt`, it will be used for default config. Here's an example:
@@ -29,7 +44,8 @@ video_size = 800x600
 * video_size = outgoing video resolution
 
 ## For Developers and Architects
-
+You can debug and run with:
+`pipenv run python clivrt.py`
 ### About WebRTC
 This app utilizes WebRTC. [From mozilla](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Signaling_and_video_calling): "WebRTC is a fully peer-to-peer technology for the real-time exchange of audio, video, and data, with one central caveat. A form of discovery and media format negotiation must take place, as discussed elsewhere, in order for two devices on different networks to locate one another. This process is called signaling and involves both devices connecting to a third, mutually agreed-upon server. Through this third server, the two devices can locate one another, and exchange negotiation messages."
 
