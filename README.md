@@ -34,6 +34,7 @@ loglevel = WARN
 videostyle = just-ascii
 webcam = /dev/video0
 framerate = 30
+frame_interval = 4
 video_size = 800x600
 ```
 * signalinghosturl = Which server to connect to for finding/connecting/chatting with peers (note once a peer connection is established this is no longer required for video chat). Must begin with ws:// or wss://

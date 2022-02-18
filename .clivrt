@@ -5,4 +5,5 @@ loglevel = ERROR
 videostyle = ascii-color
 webcam = FAKE
 framerate = 30
+frame_interval = 4
 video_size = 800x600

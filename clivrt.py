@@ -132,7 +132,7 @@ vidstyle = config.defaults().get('videostyle', 'just-ascii')
 def on_track(track):
     logging.debug('Receiving %s' % track.kind)
     if track.kind == 'video':
-        videotransform = videotransformtrack.VideoTransformTrack(network_mgr.remote_relay.subscribe(track)) # Create a 'proxy' around the video for transforming
+        videotransform = videotransformtrack.VideoTransformTrack(track=network_mgr.remote_relay.subscribe(track), config=config) # Create a 'proxy' around the video for transforming
         videotransform.ve.set_strategy(vidstyle)
         network_mgr.recorder.addTrack(videotransform)
     # TODO: play audio track if present
