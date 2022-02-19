@@ -220,6 +220,7 @@ class NetworkManager:
     async def end_rtc(self):
         logging.debug('sending hangup message to signaling server but stay connected')
         await self.recorder.stop()
+        await self.pc.close()
         # await self.pc.close()
         self.session.connection_status.status = ConnectionStatusEnum.NOTINCALL
         self.session.connection_status.talking_to = ''

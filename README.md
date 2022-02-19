@@ -42,6 +42,7 @@ video_size = 800x600
 * videostyle = [just-ascii, ascii-color, filled-ascii] pick your sytle for visualizing the video as ASCII
 * webcam = Path to your webcam. Some examples: [linux: /dev/video0, windows: video=Integrated Camera, mac: default:none]
 * framerate = outgoing video framerate
+* frame_interval = allows incoming frames to be dropped to improve performance. (e.g. a value of 4 here will only print every 4th frame)
 * video_size = outgoing video resolution
 
 ## For Developers and Architects
