@@ -37,6 +37,8 @@ aiortc = "*"
 video-to-ascii = {ref = "main", git = "https://github.com/collabinator/video-to-ascii.git"}
 websockets = "*"
 pygments = "*"
+nvidia-riva-client = "*"
+ipython = "*"
 
 [dev-packages]
 pyinstaller = {file = "https://github.com/pyinstaller/pyinstaller/archive/develop.zip"}

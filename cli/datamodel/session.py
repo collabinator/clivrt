@@ -5,6 +5,8 @@ from attr import field
 from attrs import define
 from .connectionstatus import ConnectionStatus
 from .connectionstatus import ConnectionStatusEnum
+from .rivaconnectionstatus import RivaConnectionStatus
+from .rivaconnectionstatus import RivaConnectionStatusEnum
 from .userslist import UsersList
 import uuid
 import platform
@@ -20,6 +22,7 @@ class Session:
     my_name: str = field(init=False)
     os_type: str = field(init=False)
     videodevice: str = field(init=False)
+    riva_connection: RivaConnectionStatus = RivaConnectionStatus(RivaConnectionStatusEnum.NOTCONNECTED)
 
     def __attrs_post_init__(self):
         self.users_list.update_available('[]')
@@ -36,3 +39,4 @@ class Session:
         self.my_name = ''
         self.my_signaling_id = str(uuid.uuid1()) # TODO do I really need a new ID per session?
         self.connection_status = ConnectionStatus(ConnectionStatusEnum.NOTINCALL)
+        self.riva_connection = RivaConnectionStatus(RivaConnectionStatusEnum.NOTCONNECTED)    
