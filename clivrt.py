@@ -27,6 +27,7 @@ from cli.datamodel.session import Session
 from cli.network.networkmanager import NetworkManager
 from cli import printf
 from cli.media import videotransformtrack
+from copy import deepcopy
 
 config = configparser.ConfigParser()
 config.read('.clivrt')
@@ -65,9 +66,27 @@ riva_asr = None
 if asr_on.lower() == 'true':
     riva_host_uri = config.defaults().get('asr_hosturl', 'localhost:50051')
     logging.debug(f'Setting up connection to RIVA server text captions, host=' + riva_host_uri)
-    auth = riva.client.Auth(uri=riva_host_uri)
-    riva_asr = riva.client.ASRService(auth)
-    session.riva_connection.status = session.riva_connection.status.CONNECTED
+    try:
+        auth = riva.client.Auth(uri=riva_host_uri)
+        riva_asr = riva.client.ASRService(auth)
+        offline_config = riva.client.RecognitionConfig(
+            encoding=riva.client.AudioEncoding.LINEAR_PCM,
+            max_alternatives=1,
+            profanity_filter=False,
+            enable_automatic_punctuation=True,
+            verbatim_transcripts=False,
+            audio_channel_count=1,
+        )
+        streaming_config = riva.client.StreamingRecognitionConfig(config=deepcopy(offline_config), interim_results=True)
+        # TODO RIVA check for server to make sure its up and running
+        #audio_chunk_iterator = riva.client.AudioChunkFileIterator(my_wav_file, 4800, riva.client.sleep_audio_length)
+        #response_generator = asr_service.streaming_response_generator(audio_chunk_iterator, streaming_config)
+        #riva.client.print_streaming(response_generator, show_intermediate=True)
+        raise Exception('RIVA is not yet implemented')
+        session.riva_connection.status = session.riva_connection.status.CONNECTED
+    except Exception as e:
+        logging.error(f'Failed to connect to asr server - captions will be unavailable, error=' + str(e))
+        session.riva_connection.status = session.riva_connection.status.NOTCONNECTED
 
 tbstyle = Style.from_dict({
     'bottom-toolbar': '#33475b bg:#ffffff',
