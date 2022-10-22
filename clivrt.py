@@ -2,12 +2,16 @@ import configparser
 import traceback
 import logging
 import asyncio
+import io
+import IPython.display as ipd
+import grpc
+import riva.client
 import prompt_toolkit
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter, NestedCompleter
 from prompt_toolkit.shortcuts.prompt import prompt
 from prompt_toolkit.styles import Style
-# Will use these soon to split the screen into sections
+# TODO Will use these soon to split the screen into sections
 # from prompt_toolkit.application import Application
 # from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign
 # from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
@@ -23,6 +27,7 @@ from cli.datamodel.session import Session
 from cli.network.networkmanager import NetworkManager
 from cli import printf
 from cli.media import videotransformtrack
+from copy import deepcopy
 
 config = configparser.ConfigParser()
 config.read('.clivrt')
@@ -55,21 +60,53 @@ better_completer = NestedCompleter.from_nested_dict({
 session = Session(config)
 network_mgr = NetworkManager(session=session, config=config)
 
+# NVIDIA RIVA setup here (might need to move into the network folder and a custom class)
+asr_on = config.defaults().get('asr_on', 'false')
+riva_asr = None
+if asr_on.lower() == 'true':
+    riva_host_uri = config.defaults().get('asr_hosturl', 'localhost:50051')
+    logging.debug(f'Setting up connection to RIVA server text captions, host=' + riva_host_uri)
+    try:
+        auth = riva.client.Auth(uri=riva_host_uri)
+        riva_asr = riva.client.ASRService(auth)
+        offline_config = riva.client.RecognitionConfig(
+            encoding=riva.client.AudioEncoding.LINEAR_PCM,
+            max_alternatives=1,
+            profanity_filter=False,
+            enable_automatic_punctuation=True,
+            verbatim_transcripts=False,
+            audio_channel_count=1,
+        )
+        streaming_config = riva.client.StreamingRecognitionConfig(config=deepcopy(offline_config), interim_results=True)
+        # TODO RIVA check for server to make sure its up and running
+        #audio_chunk_iterator = riva.client.AudioChunkFileIterator(my_wav_file, 4800, riva.client.sleep_audio_length)
+        #response_generator = asr_service.streaming_response_generator(audio_chunk_iterator, streaming_config)
+        #riva.client.print_streaming(response_generator, show_intermediate=True)
+        raise Exception('RIVA is not yet implemented')
+        session.riva_connection.status = session.riva_connection.status.CONNECTED
+    except Exception as e:
+        logging.error(f'Failed to connect to asr server - captions will be unavailable, error=' + str(e))
+        session.riva_connection.status = session.riva_connection.status.NOTCONNECTED
+
 tbstyle = Style.from_dict({
     'bottom-toolbar': '#33475b bg:#ffffff',
 })
 def bottom_toolbar():
     # TODO future file data transfer progress (like the pipenv bar)
-    # TODO video sent/received packets + bytes + frames + bitrate + etc...
+    # TODO debugging status - video sent/received packets + bytes + frames + bitrate + etc...
     signaling_status = '⛔'
+    riva_status = ' '
     if network_mgr.is_connected(): 
         signaling_status = '📢 🔓'
         if network_mgr.wsclient.secure: signaling_status = '📢 🔒'
+    if session.riva_connection is not None:
+        riva_status = session.riva_connection.getDescription()
     # return prompt_toolkit.HTML(
     return [('class:bottom-toolbar',
         session.connection_status.getDescription() + \
         ' ▪️ ' + signaling_status + \
-        ' ▪️ (Press ctrl+d to exit)')]
+        ' ' + riva_status + \
+        ' ▪️ (Press tab to autocomplete, ctrl+d to exit)')]
 
 async def userprompt():
     commands = {}
@@ -135,7 +172,9 @@ def on_track(track):
         videotransform = videotransformtrack.VideoTransformTrack(track=network_mgr.remote_relay.subscribe(track), config=config) # Create a 'proxy' around the video for transforming
         videotransform.ve.set_strategy(vidstyle)
         network_mgr.recorder.addTrack(videotransform)
-    # TODO: play audio track if present
+    elif track.kind == 'audio':
+        network_mgr.recorder.addTrack(track)
+        #if asr_on: # TODO: play audio track if present and pass to RIVA if TTS is enabled
 
 if __name__ == '__main__':
     networktick = asyncio.get_event_loop().create_task(networktick())

@@ -13,6 +13,13 @@ The way to create a release:
 
 Which dumps clivrt into `./dist/clivrt`
 
+## On missing OS dependencies
+You might get some errors due to missing OS packages, here are some that have been seen:
+
+1. ImportError: libGL.so.1: cannot open shared object file: No such file or directory
+
+      > `apt-get install ffmpeg libsm6 libxext6  -y`
+
 ## Building on a Jetson Nano (arm64)
 I've been experimenting with building this on a [NVIDIA Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit). Here are some extra steps you'll need to take to get that going.
 (Note: I'm not sure these are the *best* way to get it working, but it *is* what I did)

@@ -1,9 +1,11 @@
 [DEFAULT]
 signalinghosturl = wss://signaling-s-dudash-dev.apps.sandbox.x8i5.p1.openshiftapps.com
 autoanswer = true
-loglevel = ERROR
+loglevel = DEBUG
 videostyle = ascii-color
 webcam = FAKE
 framerate = 30
 frame_interval = 4
 video_size = 800x600
+asr_hosturl = localhost:50051
+asr_on = true
