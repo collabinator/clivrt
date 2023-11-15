@@ -14,6 +14,7 @@ from aiortc.sdp import candidate_from_sdp
 from aiortc.contrib.media import MediaBlackhole, MediaPlayer, MediaRecorder, MediaRelay
 from aiortc.contrib.signaling import BYE, object_to_string  ## TODO is this needed?
 from prodict import Prodict
+from cli.media import videotransformtrack
 
 @define
 class NetworkManager:
@@ -229,7 +230,7 @@ class NetworkManager:
         # TODO local_relay unsubscribe?
         # TODO remote_relay anything?
 
-    def add_media_tracks(self):
+    async def add_media_tracks(self):
         # setup outgoing video/audio using config file values
         framerate = self.config.defaults().get('framerate', '30')
         video_size = self.config.defaults().get('video_size', '640x480')
@@ -243,7 +244,12 @@ class NetworkManager:
                 webcam = MediaPlayer(self.session.videodevice, format='dshow', options=options) # video=Integrated Camera
             else:
                 webcam = MediaPlayer(self.session.videodevice, format='v4l2', options=options) # /dev/video0
-            self.pc.addTrack(self.local_relay.subscribe(webcam.video))
+            # self.pc.addTrack(self.local_relay.subscribe(webcam.video))
+
+            videotransform = videotransformtrack.VideoTransformTrack(track=webcam.video) # Create a 'proxy' around the video for transforming
+            videotransform.ve.set_strategy('ascii-color')
+            self.recorder.addTrack(videotransform)
+            await self.recorder.start()
 
             # TODO: Add microphone track
 

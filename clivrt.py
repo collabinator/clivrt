@@ -19,6 +19,7 @@ from cli.commands.login import Login
 from cli.commands.logout import Logout
 from cli.commands.quit import Quit
 from cli.commands.lookup import Lookup
+from cli.commands.local import Local
 from cli.datamodel.session import Session
 from cli.network.networkmanager import NetworkManager
 from cli import printf
@@ -80,6 +81,7 @@ async def userprompt():
     dummy = Logout(commands, config, session, network_mgr)
     dummy = Quit(commands, config, session, network_mgr)
     dummy = Lookup(commands, config, session, network_mgr)
+    dummy = Local(commands, config, session, network_mgr)
     # TODO load all the commands availble from the commands folder vs manually like above (also loop import classes)
 
     prompt_session = PromptSession(

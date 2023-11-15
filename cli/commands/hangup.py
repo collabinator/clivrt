@@ -1,5 +1,5 @@
 import logging
-import websocket
+import websockets
 from .command import Command
 from cli.datamodel.connectionstatus import ConnectionStatusEnum
 from cli import printf
