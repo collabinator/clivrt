@@ -233,7 +233,7 @@ class NetworkManager:
     async def add_media_tracks(self):
         # setup outgoing video/audio using config file values
         framerate = self.config.defaults().get('framerate', '30')
-        video_size = self.config.defaults().get('video_size', '640x480')
+        video_size = self.config.defaults().get('video_size', '800x600')
         try:
             options = {'framerate': framerate, video_size: '640x480'}
             if self.session.videodevice == 'FAKE':
@@ -247,7 +247,7 @@ class NetworkManager:
             # self.pc.addTrack(self.local_relay.subscribe(webcam.video))
 
             videotransform = videotransformtrack.VideoTransformTrack(track=webcam.video) # Create a 'proxy' around the video for transforming
-            videotransform.ve.set_strategy('ascii-color')
+            videotransform.ve.set_strategy('just-ascii')
             self.recorder.addTrack(videotransform)
             await self.recorder.start()
 

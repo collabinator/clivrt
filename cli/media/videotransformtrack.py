@@ -21,7 +21,7 @@ class VideoTransformTrack(MediaStreamTrack):
     def __init__(self, track):
         super().__init__()
         self.track = track
-        self.frame_interval = '1'
+        self.frame_interval = '4'
         if PLATFORM: sys.stdout.write("echo -en '\033[2J' \n")
         else: sys.stdout.write('\033[2J')
         self.ve = video_engine.VideoEngine()
@@ -31,6 +31,6 @@ class VideoTransformTrack(MediaStreamTrack):
         frame = await self.track.recv()
         # TODO into correct frame when we update prompt
         # currently each strategy does  sys.stdout.write(msg)
-        # if (self.frame_count % int(self.frame_interval) == 0):
-        await self.ve.render_strategy.render_frame(frame.to_ndarray(format="bgr24")) # why dont we use render()?
+        if (self.frame_count % int(self.frame_interval) == 0):
+            await self.ve.render_strategy.render_frame(frame.to_ndarray(format="bgr24")) # why dont we use render()?
         return
